@@ -1,0 +1,24 @@
+{
+  "name": "sejong-database-project",
+  "version": "1.0.0",
+  "description": "Repository for the database project at Sejong University",
+  "homepage": "https://github.com/jobritz/sejong-database-project#readme",
+  "bugs": {
+    "url": "https://github.com/jobritz/sejong-database-project/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jobritz/sejong-database-project.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@dotenvx/dotenvx": "^1.54.1",
+    "mssql": "^12.2.0"
+  }
+}
