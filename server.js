@@ -1,56 +1,153 @@
-////////////
-// Config //
-////////////
+const express = require("express");
+const sql = require("mssql");
+const session = require("express-session");
+const path = require("path");
 
-const sql = require('mssql');
+const app = express();
 const dotenv = require('@dotenvx/dotenvx');
-
 dotenv.config();
 
-const port = process.env.PORT;
-const dbConfig = {
-	server: process.env.DB_SERVER,
-	user: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	options: {
-		encrypt: false, // Set to true if using Azure SQL Database
-	    trustServerCertificate: true // Use for self-signed certificates in local dev
+const PORT = process.env.PORT;
+
+const SQL_COMMANDS = require("./sql-commands.json");
+
+// ─── Middleware ────────────────────────────────────────────────────────────────
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "frontend")));
+app.use(
+	session({
+		secret: "sql-demo-secret-key",
+		resave: false,
+		saveUninitialized: false,
+		cookie: {
+			secure: false,
+			maxAge: 1000 * 60 * 60
+		}, // 1 hour
+	})
+);
+
+// ─── Active Connections Pool ───────────────────────────────────────────────────
+const connections = {}; // sessionId → mssql.ConnectionPool
+
+function getConfig(body) {
+	return {
+		user: body.username,
+		password: body.password,
+		server: process.env.DB_SERVER,
+		database: process.env.DB_DATABASE,
+		port: parseInt(process.env.DB_PORT),
+		options: {
+			encrypt: JSON.parse(process.env.DB_ENCRYPT),
+			trustServerCertificate: JSON.parse(process.env.DB_TRUST_CERT),
+			enableArithAbort: true,
+		},
+		connectionTimeout: 10000,
+		requestTimeout: 30000,
+	};
+}
+
+// ─── Auth: Login ──────────────────────────────────────────────────────────────
+app.post("/api/auth/login", async (req, res) => {
+	const { username, password } = req.body;
+	if (!username || !password) {
+		return res.status(400).json({ error: "Username and password are required." });
 	}
+	try {
+		const config = getConfig(req.body);
+		const pool = new sql.ConnectionPool(config);
+		await pool.connect();
+
+		if (connections[req.session.id]) {
+			try { await connections[req.session.id].close(); } catch (_) {}
+		}
+		connections[req.session.id] = pool;
+		req.session.user = {
+			username: config.user,
+			server: config.server,
+			database: config.database
+		};
+
+		res.json({
+			success: true,
+			user: {
+				username: config.user,
+				server: config.server,
+				database: config.database
+			},
+		});
+	} catch (err) {
+		res.status(401).json({ error: `Connection failed: ${err.message}` });
+	}
+});
+
+// ─── Auth: Logout ─────────────────────────────────────────────────────────────
+app.post("/api/auth/logout", async (req, res) => {
+	if (connections[req.session.id]) {
+		try { await connections[req.session.id].close(); } catch (_) {}
+		delete connections[req.session.id];
+	}
+	req.session.destroy();
+	res.json({ success: true });
+});
+
+// ─── Auth: Status ─────────────────────────────────────────────────────────────
+app.get("/api/auth/status", (req, res) => {
+	if (req.session.user && connections[req.session.id]) {
+		res.json({ loggedIn: true, user: req.session.user });
+	} else {
+		res.json({ loggedIn: false });
+	}
+});
+
+// ─── Auth Guard Middleware ─────────────────────────────────────────────────────
+function requireAuth(req, res, next) {
+	if (!req.session.user || !connections[req.session.id]) {
+		return res.status(401).json({ error: "Not authenticated. Please log in first." });
+	}
+	next();
 }
 
-////////////
-// Server //
-////////////
+// ─── SQL Execute Endpoint ─────────────────────────────────────────────────────
+app.post("/api/sql/execute", requireAuth, async (req, res) => {
+	const { query, params } = req.body;
+	if (!query) return res.status(400).json({ error: "No query provided." });
 
-//const express = require('express');
-//const path = require('path');
-//const helmet = require('helmet');
+	const pool = connections[req.session.id];
+	try {
+		const request = pool.request();
 
-//const app = express();
+		for (const [key, value] of Object.entries(params)) {
+			if (value === null || value === undefined) continue;
+			const num = Number(value);
+			if (!isNaN(num) && value !== "") {
+				request.input(key, sql.NVarChar, String(value));
+			} else {
+				request.input(key, sql.NVarChar, value);
+			}
+		}
 
-//app.use(express.json());
-//app.use(express.static(path.join(__dirname, 'frontend')));
-//app.use(helmet());
+		const startTime = Date.now();
+		const result = await request.query(query);
+		const elapsed = Date.now() - startTime;
 
-//app.listen(port, () => console.log(`App available on http://localhost:${port}`));
+		res.json({
+			success: true,
+			recordset: result.recordset || [],
+			rowsAffected: result.rowsAffected,
+			columns: result.recordset?.length > 0 ? Object.keys(result.recordset[0]) : [],
+			elapsed,
+		});
+	} catch (err) {
+		res.status(400).json({ error: err.message, code: err.number });
+	}
+});
 
+// ─── SQL Categories & Commands ─────────────────────────────────────────────────
+app.get("/api/categories", (req, res) => {
+	res.json(SQL_COMMANDS);
+});
 
-async function connectToDatabase() {
-    try {
-        // Connect to the database
-        await sql.connect(dbConfig);
-        console.log('Connected to SQL Server successfully!');
-
-        // Example query
-        //const result = await sql.query`use database hotel`;
-        //console.dir(result.recordset);
-
-    } catch (err) {
-        console.error('Database connection error:', err);
-    } finally {
-        // Close the connection when done
-        await sql.close();
-    }
-}
-
-connectToDatabase();
+// ─── Start Server ─────────────────────────────────────────────────────────────
+app.listen(PORT, () => {
+	console.log(`Hotel Booking System running at http://localhost:${PORT}\n`);
+});

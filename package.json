@@ -19,6 +19,12 @@
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.54.1",
-    "mssql": "^12.2.0"
+    "express": "^5.2.1",
+    "mssql": "^12.2.0",
+    "cors": "^2.8.5",
+    "express-session": "^1.17.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }
