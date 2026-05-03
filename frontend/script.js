@@ -5,6 +5,7 @@ createApp({
 		return {
 			loggedIn: false,
 			currentUser: '',
+			currentRole: '',
 			loginForm: { 
 				username: '', 
 				password: '' 
@@ -22,13 +23,35 @@ createApp({
 			inserted: null,
 			runLoading: false,
 			selectValues: {},
-			selectLabelDefaults: {}
+			selectLabelDefaults: {},
+			kpiResults: {},
+			kpiLoading: false,
 		};
 	},
 	
 	mounted() {
 		this.checkLoginStatus();
 		this.loadQueries();
+	},
+	
+	watch: {
+		loggedIn(newValue) {
+			if(newValue) {
+				const cmd =	`SELECT DP1.name AS RoleName 
+					FROM sys.database_role_members AS DRM 
+					INNER JOIN sys.database_principals AS DP1 ON DRM.role_principal_id = DP1.principal_id 
+					INNER JOIN sys.database_principals AS DP2 ON DRM.member_principal_id = DP2.principal_id 
+					WHERE DP2.name = USER_NAME();`;
+					fetch('/api/sql/execute', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({ query: cmd, params: {} })
+					})
+						.then((res) => res.json())
+						.then((data) => this.currentRole = String(Object.values(data.recordset[0])[0]))
+						.catch((e) => console.error(e));
+			}
+		}
 	},
 	
 	methods: {
@@ -89,6 +112,7 @@ createApp({
 				.finally(() => {
 					this.loggedIn = false;
 					this.currentUser = '';
+					this.currentRole = '';
 					this.currentCat = null;
 					this.currentCmd = null;
 					this.queryResult = null;
@@ -124,32 +148,36 @@ createApp({
 				this.loadSelectOptions(cmd.insert.params);
 			}
 			if (cmd.runOnSelect) {
-				this.executeCommand(cmd.sql);
+				if (cmd.type === 'scalar') this.executeKpiQueries(cmd.sql);
+				if (cmd.type === 'table') this.executeCommand(cmd.sql);
 			}
 		},
 		
 		loadSelectOptions(params) {
+			const cleanParams = {};
+			for (const [key, value] of Object.entries(this.paramValues)) {
+				if (!Array.isArray(value)) cleanParams[key] = value;
+			}
+			for (const [key, value] of Object.entries(this.selectValues)) {
+				cleanParams[key] = value;
+			}
+			
 			for (const p of params) {
 				if (p.type === 'select') {
 					delete this.paramValues[p.name];
 					fetch('/api/sql/execute', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
-						body: JSON.stringify({ query: p.options, params: this.paramValues })
+						body: JSON.stringify({ query: p.options, params: cleanParams })
 					})
 						.then((res) => res.json())
 						.then((data) => {
 							this.paramValues[p.name] = data.recordset;
-							//console.log(this.paramValues);
-							console.log(this.selectValues);
 							if (this.selectValues[p.name] !== undefined) return;
 							for (const labelVal of Object.values(this.selectLabelDefaults)) {
 								const match = data.recordset.find(
 									(o) => String(Object.values(o)[1]) === String(labelVal)
 								);
-								console.log(match);
-								console.log(labelVal);
-								console.log(data.recordset);
 								if (match) {
 									this.selectValues[p.name] = String(Object.values(match)[0]);
 									return;
@@ -179,11 +207,20 @@ createApp({
 			this.currentCat.commands = subSql;
 			this.currentCmd = subSql[0];
 			this.selectLabelDefaults = {};
+			
+			for (const p of this.currentCmd.params) {
+				if (p.type === 'select') delete this.selectValues[p.name];
+			}
+			if (this.currentCmd.insert) {
+				for (const p of this.currentCmd.insert.params) {
+					if (p.type === 'select') delete this.selectValues[p.name];
+				}
+			}
 
 			for (let [key, value] of Object.entries(params)) {
 				const p = this.currentCmd.params.find(p => p.name === key);
 				if (p !== undefined) {
-					if (p.type === 'number' && isNaN(value)) value = parseInt(value.match(/\d+/g));
+					if (p.type === 'number' && isNaN(value)) value = parseFloat(String(value).replace(/[^0-9.]/g, ''));
 					if (p.type === 'select') {
 						this.selectValues[key] = String(value);
 					} else {
@@ -224,18 +261,12 @@ createApp({
 			}
 		},
 		
-		executeCommand(cmd) {
+		executeCommand(sql) {
 			this.runLoading = true;
 			this.queryResult = null;
 			const mergedParams = {};
 			for (const [key, value] of Object.entries(this.paramValues)) {
 				if (!Array.isArray(value)) mergedParams[key] = value;
-				/*
-				if (typeof value === 'object') {
-					let o = document.getElementById(key);
-					this.paramValues[key] = o.options[o.selectedIndex].value;
-				}
-				*/
 			}
 			for (const [key, value] of Object.entries(this.selectValues)) {
 				mergedParams[key] = value;
@@ -243,13 +274,13 @@ createApp({
 			fetch('/api/sql/execute', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ query: cmd, params: mergedParams })
+				body: JSON.stringify({ query: sql, params: mergedParams })
 			})
 				.then((res) => res.json())
 				.then((data) => {
 					this.queryResult = data;
 					if (this.currentCmd.insert) {
-						if (this.currentCmd.runOnSelect && this.currentCmd.insert.sql === cmd) {
+						if (this.currentCmd.runOnSelect && this.currentCmd.insert.sql === sql) {
 							for (const p of this.currentCmd.insert.params) {
 								if (!p.readonly) {
 									this.paramValues[p.name] = '';
@@ -262,16 +293,34 @@ createApp({
 				.catch((e) => console.error(e))
 				.finally(() => (this.runLoading = false));
 		},
+		
+		executeKpiQueries(sql) {
+		    this.kpiResults = {};
+		    const mergedParams = { ...this.paramValues, ...this.selectValues };
+
+			for(const q of sql) {
+				this.kpiLoading = true;
+				fetch('/api/sql/execute', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ query: q.sql, params: mergedParams })
+				})
+					.then(res => res.json())
+					.then((data) => (this.kpiResults[q.title] = String(Object.values(data.recordset[0])[0])))
+					.catch((e) => (this.kpiResults[q.title] = e))
+					.finally(this.kpiLoading = false);
+			}
+		},
 
 		highlightSql(sql) {
 			const keywords = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','LIKE','BETWEEN','IS','NULL','ORDER','BY','ASC','DESC','GROUP','HAVING','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','ON','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','DROP','ALTER','ADD','IDENTITY','PRIMARY','KEY','DEFAULT','GETDATE','TOP','DISTINCT','AS','COUNT','SUM','AVG','MIN','MAX','IF','OBJECT_ID','WITH','CASE','WHEN','THEN','ELSE','END','CONCAT','COALESCE','EXCEPT','OVER','DENSE_RANK','ROW_NUMBER','STRING_AGG','YEAR'];
 			let out = String(sql).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 			out = out.replace(/(@\w+)/g, '<span class="sql-param">$1</span>');
 			out = out.replace(/'([^']*)'/g, "<span class='sql-str'>'$1'</span>");
-			out = out.replace(/(\[[\w\s]+\])/g, '<span style="color:#93c5fd">$1</span>');
+			//out = out.replace(/(\[[\w\s]+\])/g, '<span style="color:#93c5fd">$1</span>');
 			const kwRe = new RegExp(`\\b(${keywords.join('|')})\\b`, 'g');
 			out = out.replace(kwRe, '<span class="sql-kw">$1</span>');
 			return out;
-		},
+		}
 	},
 }).mount('#app');

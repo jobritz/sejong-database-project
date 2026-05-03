@@ -64,7 +64,6 @@
 						>
 							<div class="cat-icon" :style="{ color: cat.color }">{{ cat.icon }}</div>
 							<div class="cat-label">{{ cat.title }}</div>
-							<div class="cat-count">{{ cat.commands.length }}</div>
 						</div>
 					</div>
 				</div>
@@ -128,7 +127,7 @@
 
 							<div class="detail-grid">
 								<!-- SQL TEMPLATE -->
-								<div class="detail-card detail-card-full">
+								<div class="detail-card detail-card-full" v-if="currentCmd.type === 'table' || currentCmd.type === 'void'">
 									<div class="card-header">
 										<span class="card-title">SQL Template</span>
 									</div>
@@ -152,9 +151,6 @@
 								<div v-if="currentCmd.params.length > 0" class="detail-card detail-card-full">
 									<div class="card-header">
 										<span class="card-title">Input Parameters</span>
-										<span style="font-size:10px;color:var(--text-dim)">
-											{{ currentCmd.params.length }} parameter{{ currentCmd.params.length !== 1 ? 's' : '' }}
-										</span>
 									</div>
 									<div class="card-body">
 										<div class="param-form">
@@ -173,7 +169,7 @@
 								</div>
 
 								<!-- RESULTS -->
-								<div class="detail-card detail-card-full" v-if="queryResult !== null">
+								<div class="detail-card detail-card-full" v-if="queryResult !== null && currentCmd.type === 'table'">
 									<div class="card-header">
 										<span class="card-title">Query Result</span>
 										<span style="font-size:10px" v-if="queryResult.error">
@@ -231,6 +227,29 @@
 									</div>
 								</div>
 
+								<!-- KPI RESULTS -->
+								<div class="detail-card detail-card-full" v-if="currentCmd.type === 'scalar'">
+    								<div class="card-header">
+        								<span class="card-title">KPI Overview</span>
+        								<span style="font-size:10px;color:var(--text-dim)">
+            							<span v-if="kpiLoading">Running…</span>
+            							<span v-else style="color:var(--green)">● OK</span>
+        								</span>
+    								</div>
+									<div class="card-body">
+        								<button class="btn-run" :disabled="kpiLoading" @click="executeKpiQueries(currentCmd.sql)" style="margin-bottom:16px">
+            								<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
+            								{{ kpiLoading ? 'Running…' : 'Run All' }}
+        								</button>
+        								<div class="kpi-grid">
+        									<div v-for="[title, value] in Object.entries(kpiResults)" :key="title" class="kpi-section">
+            									<div class="kpi-label">{{ title }}</div>
+                    							<div class="kpi-value">{{ value }}</div>
+                							</div>
+            							</div>
+        							</div>
+    							</div>
+								
 								<!-- INSERT -->
 								<div class="detail-card detail-card-full" v-if="currentCmd.insert">
 									<div class="card-header">
