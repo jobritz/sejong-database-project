@@ -55,7 +55,7 @@
 					<div class="sidebar-section-label">Categories</div>
 					<div class="sidebar-scroll">
 						<div
-							v-for="cat in categories"
+							v-for="cat in visibleCategories"
 							:key="cat.id"
 							class="cat-item"
 							:class="{ active: currentCat?.id === cat.id }"
@@ -172,12 +172,6 @@
 								<div class="detail-card detail-card-full" v-if="queryResult !== null && currentCmd.type === 'table'">
 									<div class="card-header">
 										<span class="card-title">Query Result</span>
-										<span style="font-size:10px" v-if="queryResult.error">
-											<span style="color:var(--red)">● Error</span>
-										</span>
-										<span style="font-size:10px;color:var(--text-dim)" v-else>
-											<span style="color:var(--green)">● OK</span>&nbsp;&nbsp;{{ queryResult.elapsed }}ms
-										</span>
 									</div>
 									<div class="card-body">
 										<!-- Error -->
@@ -188,13 +182,6 @@
 										</div>
 										<!-- Rows returned -->
 										<template v-else-if="queryResult.recordset?.length">
-											<div class="results-meta">
-												<span>
-													<span class="ok">●</span>
-													{{ queryResult.recordset.length }} row{{ queryResult.recordset.length !== 1 ? 's' : '' }} returned
-												</span>
-												<span>{{ queryResult.elapsed }}ms</span>
-											</div>
 											<div class="result-table-wrap">
 												<table class="result-table">
 													<thead>
@@ -232,8 +219,7 @@
     								<div class="card-header">
         								<span class="card-title">KPI Overview</span>
         								<span style="font-size:10px;color:var(--text-dim)">
-            							<span v-if="kpiLoading">Running…</span>
-            							<span v-else style="color:var(--green)">● OK</span>
+            							<span v-if="kpiLoading">Loading…</span>
         								</span>
     								</div>
 									<div class="card-body">

@@ -1,6 +1,50 @@
 [
 	{
-		"id": "customer",
+		"id": "analytics",
+		"visibility": [
+			"system_admin"
+		],
+		"icon": "📈",
+		"title": "Analytics",
+		"type": "category",
+		"description": "",
+		"color": "#a855f7",
+		"commands": [
+			{
+				"id": "contact_information",
+				"title": "All contacts",
+				"type": "table",
+				"description": "Get all contact information in the system",
+				"sql": "SELECT cu.customer_ID AS ID, CONCAT(cu.firstName,' ',cu.lastName) AS [name], cu.phoneNumber AS phoneNumber, cu.email AS email, ad.country, ad.district, ad.streetAddress \nFROM customer cu \nINNER JOIN [address] ad ON cu.address_ID = ad.address_ID\nUNION (\n\tSELECT ho.hotel_ID AS ID, ho.hotelName AS [name], ho.phoneNumber AS phoneNumber, ho.email AS email, ad.country, ad.district, ad.streetAddress \n\tFROM hotel ho \n\tINNER JOIN [address] ad ON ho.address_ID = ad.address_ID\n)\nORDER BY [name] ASC;",
+				"params": [],
+				"runOnSelect": true
+			},
+			{
+				"id": "hotel_earnings_rank",
+				"title": "Ranking: hotel total earnings",
+				"type": "table",
+				"description": "Ranking of all hotels by their total earnings",
+				"sql": "SELECT ho.hotelName, SUM(iv.totalPrice) AS total_earnings,\n\tROW_NUMBER() OVER(ORDER BY SUM(iv.totalPrice) DESC) AS [row_number],\n\tDENSE_RANK() OVER(ORDER BY SUM(iv.totalPrice) DESC) AS hotel_earnings_dense_rank\nFROM invoice iv\nINNER JOIN reservation re ON re.reservation_ID = iv.reservation_ID\nINNER JOIN room_reservation rr ON rr.reservation_ID = re.reservation_ID\nINNER JOIN hotel ho ON ho.hotel_ID = rr.hotel_ID\nGROUP BY ho.hotelName",
+				"params": [],
+				"runOnSelect": true
+			},
+			{
+				"id": "never_booked_rooms",
+				"title": "Never booked rooms",
+				"type": "table",
+				"description": "Find rooms which where never booked",
+				"sql": "SELECT hotel_id, roomNumber\nFROM room\nEXCEPT (\n\tSELECT hotel_ID, roomNumber\n\tFROM room_reservation\n)",
+				"params": [],
+				"runOnSelect": true
+			}
+		]
+	},
+	{
+		"id": "customer_management",
+		"visibility": [
+			"customer", 
+			"system_admin"
+		],
 		"icon": "👤",
 		"title": "Customer management",
 		"type": "category",
@@ -24,7 +68,7 @@
 				"subSql": [
 					{
 						"id": "update_customer",
-						"title": "Update customer",
+						"title": "Update profile",
 						"type": "void",
 						"description": "",
 						"sql": "UPDATE customer\nSET firstName = @firstName,\n\tlastName = @lastName,\n\tphoneNumber = @phoneNumber,\n\temail = @email\nWHERE customer_ID = @customer_ID;\nUPDATE [address]\nSET country = @country,\n\tcity = @city,\n\tdistrict = @district,\n\tstreetAddress = @streetAddress\nWHERE address_ID = (\n\tSELECT TOP 1 address_ID \n\tFROM customer\n\tWHERE customer_ID = @customer_ID\n)",
@@ -43,7 +87,7 @@
 					},
 					{
 						"id": "delete_customer",
-						"title": "Delete customer",
+						"title": "Delete profile",
 						"type": "void",
 						"description": "",
 						"sql": "DELETE FROM customer\nWHERE customer_ID = @customer_ID",
@@ -96,7 +140,7 @@
 						"title": "Get available room categories",
 						"type": "table",
 						"description": "",
-						"sql": "WITH RoomCategoryEquipment AS (\n\tSELECT rc.roomCategory_ID, STRING_AGG(eq.equipmentTitle, ', ') AS equipment\n\tFROM equipment eq\n\tINNER JOIN roomCategory_equipment rce ON rce.equipment_ID = eq.equipment_ID\n\tINNER JOIN roomCategory rc ON rc.roomCategory_ID = rce.roomCategory_ID\n\tGROUP BY rc.roomCategory_ID\n)\nSELECT rc.roomCategory_ID, rc.categoryTitle, rc.maxGuests, dbo.FN_FORMAT_PRICE(rc.price) price, CONCAT(rc.[size], 'm²') AS [size], rce.equipment, COUNT(DISTINCT ro.roomNumber) AS available_rooms\nFROM roomCategory rc\nLEFT OUTER JOIN RoomCategoryEquipment rce ON rce.roomCategory_ID = rc.roomCategory_ID\nINNER JOIN room ro ON ro.roomCategory_ID = rc.roomCategory_ID\nINNER JOIN room_reservation rr ON rr.roomNumber = rr.roomNumber\n\tAND rr.hotel_ID = ro.hotel_ID\nINNER JOIN reservation re ON rr.reservation_ID = re.reservation_ID\nWHERE re.reservation_ID NOT IN (\n\tSELECT reservation_ID\n\tFROM reservation\n\tWHERE [status] IN ('R', 'P')\n\t\tAND checkin  < @checkout\n\t\tAND checkout > @checkin\n\t)\n\tAND rc.hotel_ID = @hotel_ID\n\tAND rc.maxGuests >= @guests \nGROUP BY rc.roomCategory_ID, rc.categoryTitle, rc.maxGuests, CONCAT(rc.price, '€'), CONCAT(rc.[size], 'm²'), rce.equipment;",
+						"sql": "WITH RoomCategoryEquipment AS (\n\tSELECT rc.roomCategory_ID, STRING_AGG(eq.equipmentTitle, ', ') AS equipment\n\tFROM equipment eq\n\tINNER JOIN roomCategory_equipment rce ON rce.equipment_ID = eq.equipment_ID\n\tINNER JOIN roomCategory rc ON rc.roomCategory_ID = rce.roomCategory_ID\n\tGROUP BY rc.roomCategory_ID\n)\nSELECT rc.roomCategory_ID, rc.categoryTitle, rc.maxGuests, dbo.FN_FORMAT_PRICE(rc.price) price, CONCAT(rc.[size], 'm²') AS [size], rce.equipment, COUNT(DISTINCT ro.roomNumber) AS available_rooms\nFROM roomCategory rc\nLEFT OUTER JOIN RoomCategoryEquipment rce ON rce.roomCategory_ID = rc.roomCategory_ID\nINNER JOIN room ro ON ro.roomCategory_ID = rc.roomCategory_ID\nINNER JOIN room_reservation rr ON rr.roomNumber = rr.roomNumber\n\tAND rr.hotel_ID = ro.hotel_ID\nINNER JOIN reservation re ON rr.reservation_ID = re.reservation_ID\nWHERE re.reservation_ID NOT IN (\n\tSELECT reservation_ID\n\tFROM reservation\n\tWHERE [status] IN ('R', 'P')\n\t\tAND checkin  < @checkout\n\t\tAND checkout > @checkin\n\t)\n\tAND rc.hotel_ID = @hotel_ID\n\tAND rc.maxGuests >= @guests \nGROUP BY rc.roomCategory_ID, rc.categoryTitle, rc.maxGuests, price, CONCAT(rc.[size], 'm²'), rce.equipment;",
 						"params": [
 							{ "name": "hotel_ID", "label": "hotel ID", "type": "text", "placeholder": "HTL*****", "required": true, "readonly": true },
 							{ "name": "checkin", "label": "Check-in date", "type": "date", "placeholder": "YYYY-MM-DD", "required": true, "readonly": true },
@@ -110,7 +154,11 @@
 		]
 	},
 	{
-		"id": "hotel_staff",
+		"id": "hotel_management",
+		"visibility": [
+			"hotel_staff",
+			"system_admin"
+		],
 		"icon": "🛎️",
 		"title": "Hotel management",
 		"type": "category",
@@ -122,8 +170,13 @@
 				"title": "All hotels",
 				"type": "table",
 				"description": "Show data of hotels",
-				"sql": "SELECT ho.hotel_ID, ho.hotelName, ho.phoneNumber, ho.email, ad.country, ad.city, ad.district, ad.streetAddress\nFROM hotel ho\nINNER JOIN [address] ad ON ho.address_ID = ad.address_ID\nORDER BY ho.hotel_ID ASC;",
-				"params": [],
+				"sql": "SELECT ho.hotel_ID, ho.hotelName, ho.phoneNumber, ho.email, ad.country, ad.city, ad.district, ad.streetAddress\nFROM hotel ho\nINNER JOIN [address] ad ON ho.address_ID = ad.address_ID\nWHERE ho.hotel_ID LIKE '%' + @hotel_ID + '%'\n\tAND ho.hotelName LIKE '%' + @hotelName + '%'\n\tAND (\n\t\tad.country LIKE '%' + @country + '%'\n\t\t\tAND ad.city LIKE '%' + @city + '%'\n\t\t)\nORDER BY ho.hotel_ID ASC;",
+				"params": [
+					{ "name": "hotel_ID", "label": "hotel ID", "type": "text", "placeholder": "HTL*****", "required": false, "readonly": false },
+					{ "name": "hotelName", "label": "hotel name", "type": "text", "placeholder": "", "required": false, "readonly": false },
+					{ "name": "country", "label": "country", "type": "text", "placeholder": "", "required": false, "readonly": false },
+					{ "name": "city", "label": "city", "type": "text", "placeholder": "", "required": false, "readonly": false }
+				],
 				"runOnSelect": true,
 				"subSql": [
 					{
@@ -150,7 +203,7 @@
 					},
 					{
 						"id": "update_hotel",
-						"title": "Update hotel",
+						"title": "Update hotel profile",
 						"type": "void",
 						"description": "",
 						"sql": "UPDATE hotel\nSET hotelName = @hotelName,\n\tphoneNumber = @phoneNumber,\n\temail = @email\nWHERE hotel_ID = @hotel_ID;\nUPDATE [address]\nSET country = @country,\n\tcity = @city,\n\tdistrict = @district,\n\tstreetAddress = @streetAddress\nWHERE address_ID = (\n\tSELECT TOP 1 address_ID \n\tFROM hotel\n\tWHERE hotel_ID = @hotel_ID\n);",
@@ -265,7 +318,7 @@
 						"title": "Rooms",
 						"type": "table",
 						"description": "",
-						"sql": "SELECT ro.hotel_ID, ro.roomNumber, ro.[floor], rc.categoryTitle AS category,\n\tCASE\n\t\tWHEN re.checkin > GETDATE() OR re.checkout < GETDATE() THEN 'Free'\n\t\tWHEN re.reservation_ID IS NULL THEN 'Free'\n\t\tELSE 'Occupied'\n\tEND AS room_status\nFROM room ro\nINNER JOIN roomCategory rc ON ro.roomCategory_ID = rc.roomCategory_ID\nLEFT OUTER JOIN room_reservation rr ON ro.roomNumber = rr.roomNumber\n\tAND ro.hotel_ID = rr.hotel_ID\nLEFT OUTER JOIN reservation re ON rr.reservation_ID = re.reservation_ID\nWHERE ro.hotel_ID = @hotel_ID;",
+						"sql": "SELECT ro.hotel_ID, ro.roomNumber, ro.[floor], rc.categoryTitle AS category,\n\tCASE\n\t\tWHEN re.reservation_ID IS NULL THEN 'Free'\n\t\tWHEN re.checkout < GETDATE() THEN 'Free'\n\tWHEN re.checkin > GETDATE() THEN 'Reserved'\n\t\tELSE 'Occupied'\n\tEND AS room_status\nFROM room ro\nINNER JOIN roomCategory rc ON ro.roomCategory_ID = rc.roomCategory_ID\nLEFT OUTER JOIN room_reservation rr ON ro.roomNumber = rr.roomNumber\n\tAND ro.hotel_ID = rr.hotel_ID\nLEFT OUTER JOIN reservation re ON rr.reservation_ID = re.reservation_ID\nWHERE ro.hotel_ID = @hotel_ID;",
 						"params": [
 							{ "name": "hotel_ID", "label": "hotel ID", "type": "text", "placeholder": "HTL*****", "required": true, "readonly": true }
 						],
@@ -361,7 +414,7 @@
 						"title": "Reservations",
 						"type": "table",
 						"description": "",
-						"sql": "SELECT DISTINCT re.reservation_ID, re.checkin, re.checkout, re.guests, dbo.FN_STATUS_DETAILS(re.[status]) AS [status], dbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS fullName, cu.phoneNumber, cu.email,\n\tCASE\n\t\tWHEN re.checkin > GETDATE() THEN 'Upcoming'\n\t\tWHEN re.checkout > GETDATE() THEN 'Current'\n\t\tWHEN re.checkout < GETDATE() THEN 'Former'\n\t\tELSE 'Invalid'\n\tEND AS reservation_category\nFROM reservation re\nINNER JOIN room_reservation rr ON rr.reservation_ID = re.reservation_ID\nINNER JOIN customer cu ON cu.customer_ID = re.customer_ID\nWHERE rr.hotel_ID = @hotel_ID\nORDER BY re.checkout DESC;",
+						"sql": "SELECT DISTINCT re.reservation_ID, re.checkin, re.checkout, re.guests, dbo.FN_STATUS_DETAILS(re.[status]) AS [status], dbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS fullName, cu.phoneNumber, cu.email,\n\tCASE\n\t\tWHEN re.checkin > GETDATE() THEN 'Upcoming'\n\t\tWHEN re.checkout > GETDATE() THEN 'Current'\n\t\tWHEN re.checkout < GETDATE() THEN 'Prior'\n\t\tELSE 'Invalid'\n\tEND AS reservation_category\nFROM reservation re\nINNER JOIN room_reservation rr ON rr.reservation_ID = re.reservation_ID\nINNER JOIN customer cu ON cu.customer_ID = re.customer_ID\nWHERE rr.hotel_ID = @hotel_ID\nORDER BY re.checkout DESC;",
 						"params": [{ "name": "hotel_ID", "label": "hotel ID", "type": "text", "placeholder": "HTL*****", "required": true, "readonly": true }],
 						"runOnSelect": true,
 						"subSql": [
@@ -402,45 +455,17 @@
   						"sql": "WITH monthly AS (\n\tSELECT\n\t\tYEAR(iv.invoiceDate) AS [year],\n\t\tMONTH(iv.invoiceDate) AS [month],\n\t\tSUM(iv.totalPrice) AS monthly_revenue\n\tFROM invoice iv\n\tINNER JOIN room_reservation rr ON rr.reservation_ID = iv.reservation_ID\n\tWHERE rr.hotel_ID = @hotel_ID\n\tGROUP BY YEAR(iv.invoiceDate), MONTH(iv.invoiceDate)\n)\nSELECT\n\t[year], [month],\n\tmonthly_revenue,\n\tSUM(monthly_revenue) OVER (PARTITION BY [year] ORDER BY [month]) AS running_total_year,\n\tSUM(monthly_revenue) OVER (ORDER BY [year], [month]) AS running_total_all,\n\tLAG(monthly_revenue, 1) OVER (ORDER BY [year], [month]) AS prev_month_revenue,\n\tCAST(\n\t\t100.0 * (monthly_revenue - LAG(monthly_revenue, 1) OVER (ORDER BY [year], [month]))\n\t\t/ NULLIF(LAG(monthly_revenue, 1) OVER (ORDER BY [year], [month]), 0)\n\t AS DECIMAL(5,2)) AS mom_growth_pct\nFROM monthly\nORDER BY [year], [month]",
     					"params": [{ "name": "hotel_ID", "label": "hotel ID", "type": "text", "placeholder": "HTL*****", "required": true, "readonly": true }],
     					"runOnSelect": true
+					},
+					{
+						"id": "delete_hotel",
+						"title": "Delete hotel",
+						"type": "void",
+						"description": "",
+						"sql": "DELETE FROM hotel\nWHERE hotel_ID = @hotel_ID;",
+						"params": [{ "name": "hotel_ID", "label": "hotel ID", "type": "text", "placeholder": "HTL*****", "required": true, "readonly": true }],
+						"runOnSelect": false
 					}
 				]
-			}
-		]
-	},
-	{
-		"id": "system_admin",
-		"icon": "📈",
-		"title": "Analytics",
-		"type": "category",
-		"description": "",
-		"color": "#a855f7",
-		"commands": [
-			{
-				"id": "contact_information",
-				"title": "All contacts",
-				"type": "table",
-				"description": "Get all contact information in the system",
-				"sql": "SELECT cu.customer_ID AS ID, CONCAT(cu.firstName,' ',cu.lastName) AS [name], cu.phoneNumber AS phoneNumber, cu.email AS email, ad.country, ad.district, ad.streetAddress \nFROM customer cu \nINNER JOIN [address] ad ON cu.address_ID = ad.address_ID\nUNION (\n\tSELECT ho.hotel_ID AS ID, ho.hotelName AS [name], ho.phoneNumber AS phoneNumber, ho.email AS email, ad.country, ad.district, ad.streetAddress \n\tFROM hotel ho \n\tINNER JOIN [address] ad ON ho.address_ID = ad.address_ID\n)\nORDER BY [name] ASC;",
-				"params": [],
-				"runOnSelect": true
-			},
-			{
-				"id": "hotel_earnings_rank",
-				"title": "Ranking: hotel total earnings",
-				"type": "table",
-				"description": "Ranking of all hotels by their total earnings",
-				"sql": "SELECT ho.hotelName, SUM(iv.totalPrice) AS total_earnings,\n\tROW_NUMBER() OVER(ORDER BY SUM(iv.totalPrice) DESC) AS [row_number],\n\tDENSE_RANK() OVER(ORDER BY SUM(iv.totalPrice) DESC) AS hotel_earnings_dense_rank\nFROM invoice iv\nINNER JOIN reservation re ON re.reservation_ID = iv.reservation_ID\nINNER JOIN room_reservation rr ON rr.reservation_ID = re.reservation_ID\nINNER JOIN hotel ho ON ho.hotel_ID = rr.hotel_ID\nGROUP BY ho.hotelName",
-				"params": [],
-				"runOnSelect": true
-			},
-			{
-				"id": "never_booked_rooms",
-				"title": "Never booked rooms",
-				"type": "table",
-				"description": "Find rooms which where never booked",
-				"sql": "SELECT hotel_id, roomNumber\nFROM room\nEXCEPT (\n\tSELECT hotel_ID, roomNumber\n\tFROM room_reservation\n)",
-				"params": [],
-				"runOnSelect": true
 			}
 		]
 	}

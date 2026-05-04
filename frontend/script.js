@@ -18,6 +18,7 @@ createApp({
 			previousCmd: null,
 			paramValues: {},
 			subQueryMode: false,
+			subQueryBase: false,
 			navStack: [],
 			queryResult: null,
 			inserted: null,
@@ -26,12 +27,19 @@ createApp({
 			selectLabelDefaults: {},
 			kpiResults: {},
 			kpiLoading: false,
+			autoSubSelect: false
 		};
 	},
 	
 	mounted() {
 		this.checkLoginStatus();
 		this.loadQueries();
+	},
+	
+	computed: {
+		visibleCategories() {
+			return this.categories.filter(cat => cat.visibility.includes(this.currentRole));
+		}
 	},
 	
 	watch: {
@@ -49,7 +57,13 @@ createApp({
 					})
 						.then((res) => res.json())
 						.then((data) => this.currentRole = String(Object.values(data.recordset[0])[0]))
-						.catch((e) => console.error(e));
+						.catch((e) => console.error(e))
+						.finally(() => {
+							this.categories = this.categories.filter(cat => cat.visibility.includes(this.currentRole));
+							this.autoSubSelect = true;
+							this.selectCat(this.categories[0]);
+							this.selectCmd(this.currentCat.commands[0]);
+						});
 			}
 		}
 	},
@@ -122,6 +136,7 @@ createApp({
 		
 		selectCat(cat) {
 			this.loadQueries();
+			this.subQueryBase = false;
 			this.subQueryMode = false;
 			this.navStack = [];
 			this.currentCat = cat;
@@ -250,10 +265,9 @@ createApp({
 			this.currentCat.commands = prev.commands;
 			this.paramValues = { ...prev.paramValues };
 			this.selectValues = { ...prev.selectValues };
-			this.subQueryMode = this.navStack.length > 0;
+			this.subQueryMode = this.navStack.length > 0 || this.subQueryBase;
 			this.queryResult = null;
 			this.currentCmd = null;
-			this.subQueryMode = this.navStack.length > 0;
 			this.currentCmd = prev.cmd;
 
 			if (prev.cmd.runOnSelect) {
@@ -279,6 +293,14 @@ createApp({
 				.then((res) => res.json())
 				.then((data) => {
 					this.queryResult = data;
+					if(this.autoSubSelect) {
+						this.autoSubSelect = false;
+						if (this.currentCmd.subSql && data.recordset?.length > 0) {
+							this.selectSubCmd(this.currentCmd.subSql, data.recordset[0]);
+							this.navStack = [];
+							this.subQueryBase = true;
+						}
+					}
 					if (this.currentCmd.insert) {
 						if (this.currentCmd.runOnSelect && this.currentCmd.insert.sql === sql) {
 							for (const p of this.currentCmd.insert.params) {
