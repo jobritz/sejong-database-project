@@ -6,7 +6,7 @@
 		<title>Hotel Booking System</title>
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="stylesheet" href="style.css">
-		<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 		<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 	</head>
 	<body>
@@ -14,21 +14,39 @@
 			<!-- LOGIN OVERLAY -->
 			<transition name="fade">
 				<div class="login-overlay" v-if="!loggedIn">
+					<div class="login-bg-art">
+						<div class="login-bg-circle c1"></div>
+						<div class="login-bg-circle c2"></div>
+						<div class="login-bg-lines"></div>
+					</div>
 					<div class="login-card">
-						<div class="login-logo">Hotel Booking System</div>
-						<div class="login-group">
+						<div class="login-brand">
+							<div class="login-brand-icon">⬡</div>
 							<div>
-								<div class="login-label">USERNAME</div>
-								<input class="login-input" v-model="loginForm.username" type="text" placeholder="username" autocomplete="username" />
+								<div class="login-logo">Hotel Booking System</div>
 							</div>
-							<div>
-								<div class="login-label">PASSWORD</div>
-								<input class="login-input" v-model="loginForm.password" type="password" placeholder="********" autocomplete="current-password" />
+						</div>
+						<div class="login-divider"></div>
+						<div class="login-group">
+							<div class="login-field">
+								<div class="login-label">Username</div>
+								<input class="login-input" v-model="loginForm.username" type="text" placeholder="Enter your username" autocomplete="username" />
+							</div>
+							<div class="login-field">
+								<div class="login-label">Password</div>
+								<input class="login-input" v-model="loginForm.password" type="password" placeholder="••••••••" autocomplete="current-password" />
 							</div>
 							<button class="btn-login" :disabled="loginLoading" @click="loginUser">
-								{{ loginLoading ? 'Connecting…' : 'Login' }}
+								<span v-if="!loginLoading">Sign In</span>
+								<span v-else class="btn-loading-text">
+									<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+									Connecting…
+								</span>
 							</button>
-							<div class="login-error" v-if="loginError">{{ loginError }}</div>
+							<div class="login-error" v-if="loginError">
+								<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+								{{ loginError }}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -36,15 +54,37 @@
 
 			<!-- TOPBAR -->
 			<div id="topbar">
-				<div class="topbar-logo">Hotel Booking System</div>
-				<div class="topbar-sep"></div>
+				<div class="topbar-brand">
+					<span class="topbar-brand-icon">⬡</span>
+					<span class="topbar-logo">Hotel Booking System</span>
+				</div>
+
+				<nav class="topbar-nav">
+					<div
+						v-for="cat in visibleCategories"
+						:key="cat.id"
+						class="nav-item"
+						:class="{ active: currentCat?.id === cat.id }"
+						@click="selectCategory(cat)"
+					>
+						<span class="nav-icon">{{ cat.icon }}</span>
+						<span class="nav-label">{{ cat.title }}</span>
+						<span class="nav-active-bar" v-if="currentCat?.id === cat.id" :style="{ background: cat.color }"></span>
+					</div>
+				</nav>
+
 				<div class="topbar-right" v-if="loggedIn">
-					<div class="status-dot"></div>
-					<span class="status-label">Logged in as </span>
-					<span class="user-badge">
-						<strong>{{ currentUser }}</strong>
-					</span>
-					<button class="btn-logout" @click="logoutUser">Logout</button>
+					<div class="user-info">
+						<div class="user-avatar">{{ currentUser?.charAt(0)?.toUpperCase() }}</div>
+						<div class="user-details">
+							<div class="user-name">{{ currentUser }}</div>
+							<div class="user-role">{{ currentRole }}</div>
+						</div>
+					</div>
+					<button class="btn-logout" @click="logoutUser">
+						<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+						Sign out
+					</button>
 				</div>
 			</div>
 
@@ -52,225 +92,237 @@
 			<div id="layout">
 				<!-- SIDEBAR -->
 				<div id="sidebar">
-					<div class="sidebar-section-label">Categories</div>
+					<div class="sidebar-section-label" v-if="currentCat">
+						{{ currentCat.title }}
+					</div>
+
+					<div class="sidebar-nav-back" v-if="navStack.length > 0">
+						<button class="btn-back" @click="goBack">
+							<svg width="11" height="11" viewBox="0 0 16 16" fill="currentColor">
+								<path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+							</svg>
+							Back
+						</button>
+					</div>
+
 					<div class="sidebar-scroll">
 						<div
-							v-for="cat in visibleCategories"
-							:key="cat.id"
-							class="cat-item"
-							:class="{ active: currentCat?.id === cat.id }"
-							:style="{ borderLeftColor: currentCat?.id === cat.id ? cat.color : 'transparent' }"
-							@click="selectCat(cat)"
+							v-for="query in currentCat?.commands ?? []"
+							:key="query.id"
+							class="sidebar-item"
+							:class="{ active: currentQuery?.id === query.id }"
+							@click="selectQuery(query)"
 						>
-							<div class="cat-icon" :style="{ color: cat.color }">{{ cat.icon }}</div>
-							<div class="cat-label">{{ cat.title }}</div>
+							<div class="sidebar-item-dot" :style="{ background: currentQuery?.id === query.id ? currentCat?.color : 'transparent', borderColor: currentQuery?.id === query.id ? currentCat?.color : 'var(--border)' }"></div>
+							<div>
+								<div class="sidebar-item-title">{{ query.title }}</div>
+								<div class="sidebar-item-desc">{{ query.description }}</div>
+							</div>
 						</div>
 					</div>
 				</div>
 
-				<!-- CMD PANEL -->
-				<div id="cmd-panel">
-					<div class="cmd-panel-header" v-if="currentCat">
-						<!-- Back button + depth indicator (visible only when inside subSql) -->
-						<div class="cmd-nav" v-if="navStack.length > 0">
-							<button class="btn-back" @click="goBack">
-								<svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
-									<path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-								</svg>
-								Back
-							</button>
-						</div>
-						<div class="cmd-panel-title" :style="{ color: currentCat.color }">{{ currentCat.title }}</div>
-						<div class="cmd-panel-desc">{{ currentCat.description }}</div>
-					</div>
-					<div class="cmd-panel-header" v-else>
-						<div class="cmd-panel-title" style="color: var(--text-dim)">Select a category</div>
-					</div>
-					<div class="cmd-scroll">
-						<div
-							v-for="cmd in currentCat?.commands ?? []"
-							:key="cmd.id"
-							class="cmd-item"
-							:class="{ active: currentCmd?.id === cmd.id }"
-							:style="{ borderLeftColor: currentCmd?.id === cmd.id ? currentCat.color : 'transparent' }"
-							@click="selectCmd(cmd)"
-						>
-							<div class="cmd-item-title">{{ cmd.title }}</div>
-							<div class="cmd-item-desc">{{ cmd.description }}</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- MAIN / DETAIL -->
+				<!-- CONTENT AREA -->
 				<div id="main">
 					<!-- Empty state -->
-					<div class="empty-state" v-if="!currentCmd">
-						<div class="empty-icon">⊞</div>
-						<div class="empty-label">Select a command to get started</div>
+					<div class="empty-state" v-if="!currentQuery">
+						<div class="empty-art">
+							<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+								<rect x="8" y="20" width="48" height="36" rx="3" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.3"/>
+								<rect x="16" y="8" width="32" height="16" rx="2" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.5"/>
+								<line x1="8" y1="28" x2="56" y2="28" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+								<rect x="20" y="34" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.5"/>
+								<rect x="36" y="34" width="8" height="10" rx="1" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.5"/>
+							</svg>
+						</div>
+						<div class="empty-title">Select a query to get started</div>
+						<div class="empty-subtitle">Choose an operation from the sidebar panel</div>
 					</div>
 
-					<!-- Detail -->
+					<!-- Detail view -->
 					<template v-else>
 						<div class="detail-wrap">
-							<div class="detail-header">
-								<div class="detail-title">{{ currentCmd.title }}</div>
-								<div class="detail-desc">{{ currentCmd.description }}</div>
-								<div class="detail-badges">
-									<span
-										class="detail-badge"
-										:style="{ color: currentCat.color, borderColor: currentCat.color + '30', background: currentCat.color + '10' }"
-									>
-										{{ currentCat.title }}
-									</span>
+							<!-- Page Header -->
+							<div class="page-header">
+								<div class="page-header-left">
+									<div class="breadcrumb" v-if="currentCat">
+										<span class="breadcrumb-cat" :style="{ color: currentCat.color }">{{ currentCat.title }}</span>
+										<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4"><path d="M6 3l5 5-5 5"/></svg>
+										<span class="breadcrumb-query">{{ currentQuery.title }}</span>
+									</div>
+									<h1 class="page-title">{{ currentQuery.title }}</h1>
+									<p class="page-desc">{{ currentQuery.description }}</p>
 								</div>
 							</div>
 
-							<div class="detail-grid">
-								<!-- SQL TEMPLATE -->
-								<div class="detail-card detail-card-full" v-if="currentCmd.type === 'table' || currentCmd.type === 'void'">
-									<div class="card-header">
-										<span class="card-title">SQL Template</span>
-									</div>
-									<div class="card-body">
-										<pre class="sql-code" v-html="highlightSql(currentCmd.sql)"></pre>
-										<div class="card-vertical-gap"></div>
-										<button class="btn-run" :disabled="runLoading" @click="executeCommand(currentCmd.sql)">
-											<svg v-if="!runLoading" width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
-												<path d="M3 2l10 6-10 6V2z" />
-											</svg>
-											<svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-												<circle cx="12" cy="12" r="10" />
-												<path d="M12 6v6l4 2" />
-											</svg>
-											{{ runLoading ? 'Running…' : 'Run Query' }}
-										</button>
+							<!-- PARAMETERS -->
+							<div v-if="currentQuery.params.length > 0" class="panel">
+								<div class="panel-header">
+									<div class="panel-header-left">
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+										<span class="panel-title">Parameters</span>
 									</div>
 								</div>
-
-								<!-- PARAMETERS -->
-								<div v-if="currentCmd.params.length > 0" class="detail-card detail-card-full">
-									<div class="card-header">
-										<span class="card-title">Input Parameters</span>
-									</div>
-									<div class="card-body">
-										<div class="param-form">
-											<div class="param-row" v-for="p in currentCmd.params" :key="p.name">
-												<label class="param-label">
-													{{ p.label }}
-													<span class="req" v-if="p.required">*</span>
-												</label>
-												<select v-if="p.type === 'select'" class="param-select" v-model="selectValues[p.name]">
-													<option v-for="o in paramValues[p.name]" :value="Object.values(o)[0]">{{ Object.values(o)[1] }}</option>
-												</select>
-												<input v-else class="param-input" :type="p.type" :placeholder="p.placeholder" v-model="paramValues[p.name]" :readonly="p.readonly" />
-											</div>
+								<div class="panel-body">
+									<div class="param-form">
+										<div class="param-row" v-for="p in currentQuery.params" :key="p.name">
+											<label class="param-label">
+												{{ p.label }}
+												<span class="req" v-if="p.required">*</span>
+											</label>
+											<select v-if="p.type === 'select'" class="param-select" v-model="selectValues[p.name]">
+												<option v-for="o in paramValues[p.name]" :value="Object.values(o)[0]">{{ Object.values(o)[1] }}</option>
+											</select>
+											<input v-else class="param-input" :type="p.type" :placeholder="p.placeholder" v-model="paramValues[p.name]" :readonly="p.readonly" />
 										</div>
 									</div>
 								</div>
+							</div>
 
-								<!-- RESULTS -->
-								<div class="detail-card detail-card-full" v-if="queryResult !== null && currentCmd.type === 'table'">
-									<div class="card-header">
-										<span class="card-title">Query Result</span>
+							<!-- SQL TEMPLATE (collapsible) -->
+							<div class="panel" v-if="currentQuery.type === 'table' || currentQuery.type === 'void'">
+								<div class="panel-header panel-header-toggle" @click="currentQuery._showSql = !currentQuery._showSql">
+									<div class="panel-header-left">
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+										<span class="panel-title">SQL Query</span>
 									</div>
-									<div class="card-body">
-										<!-- Error -->
-										<div class="error-box" v-if="queryResult.error">
-											<strong>SQL Error:</strong><br>
+									<button class="btn-toggle-sql">
+										<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" :style="{ transform: currentQuery._showSql ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }">
+											<path d="M3 6l5 5 5-5"/>
+										</svg>
+										{{ currentQuery._showSql ? 'Hide' : 'Show' }}
+									</button>
+								</div>
+								<transition name="slide">
+									<div class="panel-body" v-if="currentQuery._showSql">
+										<pre class="sql-code" v-html="highlightSql(currentQuery)"></pre>
+									</div>
+								</transition>
+								<div class="panel-footer">
+									<button class="btn-run" :disabled="runLoading" @click="runQuery(currentQuery)">
+										<svg v-if="!runLoading" width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
+										<svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+										{{ runLoading ? 'Running…' : 'Execute Query' }}
+									</button>
+								</div>
+							</div>
+
+							<!-- RESULTS TABLE -->
+							<div class="panel" v-if="queryResult !== null && currentQuery.type === 'table'">
+								<div class="panel-header">
+									<div class="panel-header-left">
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+										<span class="panel-title">Results</span>
+									</div>
+									<div class="result-count" v-if="queryResult.recordset?.length">
+										{{ queryResult.recordset.length }} row{{ queryResult.recordset.length !== 1 ? 's' : '' }}
+									</div>
+								</div>
+								<div class="panel-body panel-body-table">
+									<div class="error-box" v-if="queryResult.error">
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+										<div>
+											<strong>Query Error</strong><br>
 											{{ queryResult.error }}
 											<span v-if="queryResult.code"> (code {{ queryResult.code }})</span>
 										</div>
-										<!-- Rows returned -->
-										<template v-else-if="queryResult.recordset?.length">
-											<div class="result-table-wrap">
-												<table class="result-table">
-													<thead>
-														<tr>
-															<th v-for="col in queryResult.columns" :key="col">{{ col }}</th>
-														</tr>
-													</thead>
-													<tbody>
-														<tr
-															v-for="(row, i) in queryResult.recordset"
-															:key="i"
-															@click="selectSubCmd(currentCmd.subSql, row)"
-														>
-															<td v-for="col in queryResult.columns" :key="col">
-																<span class="null-val" v-if="row[col] === null || row[col] === undefined">NULL</span>
-																<span v-else>{{ row[col] }}</span>
-															</td>
-														</tr>
-													</tbody>
-												</table>
-											</div>
-										</template>
-										<!-- Rows affected -->
-										<div class="rows-affected" v-else-if="queryResult.rowsAffected?.[0] > 0">
-											✓ {{ queryResult.rowsAffected[0] }} row{{ queryResult.rowsAffected[0] !== 1 ? 's' : '' }} affected
-										</div>
-										<div class="rows-affected" v-else>
-											✓ Query executed successfully. No rows returned.
-										</div>
 									</div>
-								</div>
-
-								<!-- KPI RESULTS -->
-								<div class="detail-card detail-card-full" v-if="currentCmd.type === 'scalar'">
-    								<div class="card-header">
-        								<span class="card-title">KPI Overview</span>
-        								<span style="font-size:10px;color:var(--text-dim)">
-            							<span v-if="kpiLoading">Loading…</span>
-        								</span>
-    								</div>
-									<div class="card-body">
-        								<button class="btn-run" :disabled="kpiLoading" @click="executeKpiQueries(currentCmd.sql)" style="margin-bottom:16px">
-            								<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
-            								{{ kpiLoading ? 'Running…' : 'Run All' }}
-        								</button>
-        								<div class="kpi-grid">
-        									<div v-for="[title, value] in Object.entries(kpiResults)" :key="title" class="kpi-section">
-            									<div class="kpi-label">{{ title }}</div>
-                    							<div class="kpi-value">{{ value }}</div>
-                							</div>
-            							</div>
-        							</div>
-    							</div>
-								
-								<!-- INSERT -->
-								<div class="detail-card detail-card-full" v-if="currentCmd.insert">
-									<div class="card-header">
-										<span class="card-title">Insert new record</span>
-									</div>
-									<div class="card-body">
-										<pre class="sql-code" v-html="highlightSql(currentCmd.insert.sql)"></pre>
-										<div class="card-vertical-gap"></div>
-										<div class="param-form">
-											<div class="param-row" v-for="p in currentCmd.insert.params" :key="p.name">
-												<label class="param-label">
-													{{ p.label }}
-													<span class="req" v-if="p.required">*</span>
-												</label>
-												<select v-if="p.type === 'select'" class="param-select" v-model="selectValues[p.name]">
-													<option v-for="o in paramValues[p.name]" :value="Object.values(o)[0]">{{ Object.values(o)[1] }}</option>
-												</select>
-												<input v-else class="param-input" :type="p.type" :placeholder="p.placeholder" v-model="paramValues[p.name]" :readonly="p.readonly" />
-											</div>
+									<template v-else-if="queryResult.recordset?.length">
+										<div class="result-table-wrap">
+											<table class="result-table">
+												<thead>
+													<tr>
+														<th v-for="col in queryResult.columns" :key="col">{{ col }}</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr
+														v-for="(row, i) in queryResult.recordset"
+														:key="i"
+														@click="drillDown(currentQuery.subSql, row)"
+														:class="{ 'row-drillable': currentQuery.subSql?.length }"
+													>
+														<td v-for="col in queryResult.columns" :key="col">
+															<span class="null-val" v-if="row[col] === null || row[col] === undefined">—</span>
+															<span v-else>{{ row[col] }}</span>
+														</td>
+													</tr>
+												</tbody>
+											</table>
 										</div>
-										<div class="card-vertical-gap"></div>
-										<button class="btn-run" :disabled="runLoading" @click="executeCommand(currentCmd.insert.sql)">
-											<svg v-if="!runLoading" width="13" height="13" viewBox="0 0 16 16" fill="currentColor">
-												<path d="M3 2l10 6-10 6V2z" />
-											</svg>
-											<svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-												<circle cx="12" cy="12" r="10" />
-												<path d="M12 6v6l4 2" />
-											</svg>
-											{{ runLoading ? 'Running…' : 'Run Query' }}
-										</button>
+									</template>
+									<div class="success-box" v-else-if="queryResult.rowsAffected?.[0] > 0">
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+										{{ queryResult.rowsAffected[0] }} row{{ queryResult.rowsAffected[0] !== 1 ? 's' : '' }} affected
+									</div>
+									<div class="success-box" v-else>
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+										Query executed successfully. No rows returned.
 									</div>
 								</div>
 							</div>
-							<!-- /detail-grid -->
+
+							<!-- KPI RESULTS -->
+							<div class="panel" v-if="currentQuery.type === 'kpi'">
+								<div class="panel-header">
+									<div class="panel-header-left">
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+										<span class="panel-title">KPI Overview</span>
+									</div>
+									<button class="btn-run btn-run-sm" :disabled="kpiLoading" @click="runKpiQueries(currentQuery)">
+										<svg v-if="!kpiLoading" width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
+										<svg v-else width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+										{{ kpiLoading ? 'Running…' : 'Refresh' }}
+									</button>
+								</div>
+								<div class="panel-body">
+									<div class="kpi-grid">
+										<div v-for="[title, value] in Object.entries(kpiResults)" :key="title" class="kpi-item">
+											<div class="kpi-label">{{ title }}</div>
+											<div class="kpi-value">{{ value }}</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- INSERT FORM -->
+							<div class="panel" v-if="currentQuery.insert">
+								<div class="panel-header">
+									<div class="panel-header-left">
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+										<span class="panel-title">Add New Record</span>
+									</div>
+									<button class="btn-toggle-sql small" @click="currentQuery._showInsertSql = !currentQuery._showInsertSql">
+										<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+										{{ currentQuery._showInsertSql ? 'Hide SQL' : 'Show SQL' }}
+									</button>
+								</div>
+								<div class="panel-body">
+									<transition name="slide">
+										<pre class="sql-code" v-if="currentQuery._showInsertSql" v-html="highlightSql(currentQuery.insert)" style="margin-bottom:16px"></pre>
+									</transition>
+									<div class="param-form">
+										<div class="param-row" v-for="p in currentQuery.insert.params" :key="p.name">
+											<label class="param-label">
+												{{ p.label }}
+												<span class="req" v-if="p.required">*</span>
+											</label>
+											<select v-if="p.type === 'select'" class="param-select" v-model="selectValues[p.name]">
+												<option v-for="o in paramValues[p.name]" :value="Object.values(o)[0]">{{ Object.values(o)[1] }}</option>
+											</select>
+											<input v-else class="param-input" :type="p.type" :placeholder="p.placeholder" v-model="paramValues[p.name]" :readonly="p.readonly" />
+										</div>
+									</div>
+								</div>
+								<div class="panel-footer">
+									<button class="btn-run" :disabled="runLoading" @click="runQuery(currentQuery.insert)">
+										<svg v-if="!runLoading" width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
+										<svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+										{{ runLoading ? 'Saving…' : 'Save Record' }}
+									</button>
+								</div>
+							</div>
+
 						</div>
 					</template>
 				</div>
