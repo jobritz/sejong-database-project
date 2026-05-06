@@ -161,6 +161,7 @@ html, body {
 	letter-spacing: 0.01em;
 	color: var(--text);
 	line-height: 1.1;
+	margin: auto;
 }
 
 .login-tagline {

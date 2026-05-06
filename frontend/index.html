@@ -21,10 +21,9 @@
 					</div>
 					<div class="login-card">
 						<div class="login-brand">
-							<div class="login-brand-icon">⬡</div>
-							<div>
-								<div class="login-logo">Hotel Booking System</div>
-							</div>
+							
+							<div class="login-logo">Hotel Booking System</div>
+							
 						</div>
 						<div class="login-divider"></div>
 						<div class="login-group">
@@ -145,11 +144,6 @@
 							<!-- Page Header -->
 							<div class="page-header">
 								<div class="page-header-left">
-									<div class="breadcrumb" v-if="currentCat">
-										<span class="breadcrumb-cat" :style="{ color: currentCat.color }">{{ currentCat.title }}</span>
-										<svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4"><path d="M6 3l5 5-5 5"/></svg>
-										<span class="breadcrumb-query">{{ currentQuery.title }}</span>
-									</div>
 									<h1 class="page-title">{{ currentQuery.title }}</h1>
 									<p class="page-desc">{{ currentQuery.description }}</p>
 								</div>
@@ -267,7 +261,7 @@
 								<div class="panel-header">
 									<div class="panel-header-left">
 										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-										<span class="panel-title">KPI Overview</span>
+										<span class="panel-title">Overview</span>
 									</div>
 									<button class="btn-run btn-run-sm" :disabled="kpiLoading" @click="runKpiQueries(currentQuery)">
 										<svg v-if="!kpiLoading" width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>

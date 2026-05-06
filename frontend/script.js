@@ -9,6 +9,7 @@ createApp({
 			loginForm: { username: '', password: '' },
 			loginLoading: false,
 			loginError: '',
+			viewplaceholders: {},
 			categories: [],
 			currentCat: null,
 			currentQuery: null,
@@ -27,8 +28,8 @@ createApp({
 	},
 
 	mounted() {
+		this.loadQueries();
 		this.checkLoginStatus();
-		this.loadCategories();
 	},
 
 	computed: {
@@ -52,7 +53,7 @@ createApp({
 				INNER JOIN sys.database_principals AS DP1 ON DRM.role_principal_id = DP1.principal_id 
 				INNER JOIN sys.database_principals AS DP2 ON DRM.member_principal_id = DP2.principal_id 
 				WHERE DP2.name = USER_NAME();`
-			this.executeSql(sql, {}, [])
+			this.executeSql(sql, {})
 				.then(data => {
 					this.currentRole = String(Object.values(data.recordset[0])[0]);
 					this.selectCategory(this.visibleCategories[0]);
@@ -64,10 +65,13 @@ createApp({
 	},
 
 	methods: {
-		loadCategories() {
+		loadQueries() {
 			fetch('/api/categories', { headers: { 'Content-Type': 'application/json' } })
 				.then(res => res.json())
-				.then(data => { if (Array.isArray(data)) this.categories = data; })
+				.then(data => {
+					this.viewplaceholders = data.viewplaceholders ? data.viewplaceholders : {};
+					if (Array.isArray(data.categories)) this.categories = data.categories; 
+				})
 				.catch(e => console.error(e));
 		},
 
@@ -149,19 +153,19 @@ createApp({
 				this.selectValues = {};
 				this.selectLabelDefaults = {};
 			}
-			this.loadSelectOptions(query.params, query.viewplaceholders);
-			if (query.insert) this.loadSelectOptions(query.insert.params, query.viewplaceholders);
+			this.loadSelectOptions(query.params);
+			if (query.insert) this.loadSelectOptions(query.insert.params);
 			if (query.runOnSelect) {
 				if (query.type === 'kpi') this.runKpiQueries(query);
 				else if (query.type === 'table') this.runQuery(query);
 			}
 		},
 
-		loadSelectOptions(params, viewplaceholders) {
+		loadSelectOptions(params) {
 			for (const p of params) {
 				if (p.type !== 'select') continue;
 				delete this.paramValues[p.name];
-				this.executeSql(p.options, this.mergedParams, viewplaceholders)
+				this.executeSql(p.options, this.mergedParams)
 					.then(data => {
 						this.paramValues[p.name] = data.recordset;
 						if (this.selectValues[p.name] !== undefined) return;
@@ -232,8 +236,7 @@ createApp({
 		runQuery(query) {
 			this.runLoading = true;
 			this.queryResult = null;
-			const viewplaceholders = query.viewplaceholders ? query.viewplaceholders : [];
-			this.executeSql(query.sql, this.mergedParams, viewplaceholders)
+			this.executeSql(query.sql, this.mergedParams)
 				.then(data => {
 					this.queryResult = data;
 					if (this.autoSelect) {
@@ -258,43 +261,39 @@ createApp({
 			this.kpiResults = {};
 			for (const q of queries.sql) {
 				this.kpiLoading = true;
-				this.executeSql(q.sql, this.mergedParams, queries.viewplaceholders)
+				this.executeSql(q.sql, this.mergedParams)
 					.then(data => (this.kpiResults[q.title] = String(Object.values(data.recordset[0])[0])))
 					.catch(e => (this.kpiResults[q.title] = String(e)))
 					.finally(() => (this.kpiLoading = false));
 			}	
 		},
 		
-		async executeSql(sql, params, viewplaceholders) {
-			for (const v of viewplaceholders) {
-				if (v.context === this.currentRole) {
-					let regex = new RegExp(String.raw`\[${v.tablename}\]`, 'g');
-					if (v.base === 'username') sql = sql.replace(regex, this.currentUser);
-					if (v.base === 'role') sql = sql.replace(regex, this.currentRole);
-				}
-			}
-			
+		async executeSql(sql, params) {
+			sql = this.replaceViewplaceholders(sql);
 			return fetch('/api/sql/execute', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ query: sql, params: params })
 			}).then(res => res.json());
 		},
+		
+		replaceViewplaceholders(sql) {
+			if(Object.keys(this.viewplaceholders).length > 0 && this.currentRole !== '') {		
+				for (const v of this.viewplaceholders[this.currentRole]) {
+					let regex = new RegExp(String.raw`\[${v.tablename}\]`, 'g');
+					if (v.base === 'user') sql = sql.replace(regex, this.currentUser);
+					if (v.base === 'role') sql = sql.replace(regex, this.currentRole);
+				}
+			}
+			return sql;
+		},
 
 		highlightSql(query) {
 			const keywords = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','LIKE','BETWEEN','IS','NULL','ORDER','BY','ASC','DESC','GROUP','HAVING','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','ON','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','DROP','ALTER','ADD','IDENTITY','PRIMARY','KEY','DEFAULT','GETDATE','TOP','DISTINCT','AS','COUNT','SUM','AVG','MIN','MAX','IF','OBJECT_ID','WITH','CASE','WHEN','THEN','ELSE','END','CONCAT','COALESCE','EXCEPT','OVER','DENSE_RANK','ROW_NUMBER','STRING_AGG','YEAR'];
 			let out = String(query.sql).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 			out = out.replace(/(@\w+)/g, '<span class="sql-param">$1</span>');
-			out = out.replace(/'([^']*)'/g, "<span class='sql-str'>'$1'</span>");		
-			if(query.viewplaceholders) {
-				for (const v of query.viewplaceholders) {
-					if (v.context === this.currentRole) {
-						let regex = new RegExp(String.raw`\[${v.tablename}\]`, 'g');
-						if (v.base === 'username') out = out.replace(regex, this.currentUser);
-						if (v.base === 'role') out = out.replace(regex, this.currentRole);
-					}
-				}
-			}
+			out = out.replace(/'([^']*)'/g, "<span class='sql-str'>'$1'</span>");
+			out = this.replaceViewplaceholders(out);
 			out = out.replace(new RegExp(`\\b(${keywords.join('|')})\\b`, 'g'), '<span class="sql-kw">$1</span>');
 			return out;
 		}
