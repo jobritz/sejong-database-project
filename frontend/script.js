@@ -239,6 +239,7 @@ createApp({
 			this.executeSql(query.sql, this.mergedParams)
 				.then(data => {
 					this.queryResult = data;
+					console.log(data);
 					if (this.autoSelect) {
 						this.autoSelect = false;
 						if (this.currentQuery.subSql && data.recordset?.length > 0) {
@@ -270,6 +271,8 @@ createApp({
 		
 		async executeSql(sql, params) {
 			sql = this.replaceViewplaceholders(sql);
+			console.log(sql);
+			console.log(params);
 			return fetch('/api/sql/execute', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
