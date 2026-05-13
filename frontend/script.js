@@ -148,10 +148,16 @@ createApp({
 		selectQuery(query) {
 			this.currentQuery = query;
 			this.queryResult = null;
-			if (!this.inSubQuery) {
-				this.paramValues = Object.fromEntries(query.params.map(p => [p.name, '']));
-				this.selectValues = {};
-				this.selectLabelDefaults = {};
+			for(const p of query.params) {
+				if(!this.inSubQuery || this.paramValues[p.name] === undefined) {
+					if(!p.required) {
+						this.paramValues[p.name] = '';
+					}
+					if(!this.inSubQuery) {
+						this.selectValues = {};
+						this.selectLabelDefaults = {};
+					}
+				}
 			}
 			this.loadSelectOptions(query.params);
 			if (query.insert) this.loadSelectOptions(query.insert.params);
@@ -239,7 +245,6 @@ createApp({
 			this.executeSql(query.sql, this.mergedParams)
 				.then(data => {
 					this.queryResult = data;
-					console.log(data);
 					if (this.autoSelect) {
 						this.autoSelect = false;
 						if (this.currentQuery.subSql && data.recordset?.length > 0) {
@@ -271,8 +276,6 @@ createApp({
 		
 		async executeSql(sql, params) {
 			sql = this.replaceViewplaceholders(sql);
-			console.log(sql);
-			console.log(params);
 			return fetch('/api/sql/execute', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -292,7 +295,7 @@ createApp({
 		},
 
 		highlightSql(query) {
-			const keywords = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','LIKE','BETWEEN','IS','NULL','ORDER','BY','ASC','DESC','GROUP','HAVING','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','ON','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','DROP','ALTER','ADD','IDENTITY','PRIMARY','KEY','DEFAULT','GETDATE','TOP','DISTINCT','AS','COUNT','SUM','AVG','MIN','MAX','IF','OBJECT_ID','WITH','CASE','WHEN','THEN','ELSE','END','CONCAT','COALESCE','EXCEPT','OVER','DENSE_RANK','ROW_NUMBER','STRING_AGG','YEAR'];
+			const keywords = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','LIKE','BETWEEN','IS','NULL','ORDER','BY','ASC','DESC','GROUP','HAVING','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','ON','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','DROP','ALTER','ADD','IDENTITY','PRIMARY','KEY','DEFAULT','GETDATE','TOP','DISTINCT','AS','COUNT','SUM','AVG','MIN','MAX','IF','OBJECT_ID','WITH','CASE','WHEN','THEN','ELSE','END','CONCAT','COALESCE','EXCEPT','OVER','DENSE_RANK','ROW_NUMBER','STRING_AGG','YEAR', 'EXEC'];
 			let out = String(query.sql).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 			out = out.replace(/(@\w+)/g, '<span class="sql-param">$1</span>');
 			out = out.replace(/'([^']*)'/g, "<span class='sql-str'>'$1'</span>");
