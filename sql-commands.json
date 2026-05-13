@@ -426,7 +426,7 @@
 									"runOnSelect":true,
 									"insert": {
 										"title":"Create reservation",
-										"sql":"EXEC SP_CREATE_RESERVATION\n\t@res_customer_ID = @customer_ID,\n\t@res_checkin = @checkin,\n\t@res_checkout = @checkout,\n\t@res_guests = @guests,\n\t@res_hotel_ID = @hotel_ID,\n\t@res_room_count = @room_count,\n\t@res_roomCategory_ID = @roomCategory_ID;",
+										"sql":"EXEC SP_CREATE_RESERVATION\n\t@res_customer_ID = @customer_ID,\n\t@res_checkin = @checkin,\n\t@res_checkout = @checkout,\n\t@res_guests = @guests,\n\t@res_hotel_ID = @hotel_ID,\n\t@res_room_count = @room_count,\n\t@res_roomCategory_ID = @roomCategory_selection;",
 										"params":[
 											{
 												"name":"customer_ID",
@@ -482,7 +482,7 @@
 												"type":"select",
 												"required":true,
 												"readonly":false,
-												"options":"SELECT DISTINCT rc.roomCategory_ID, rc.categoryTitle FROM view_roomCategory_customer rc INNER JOIN dbo.FN_GET_AVAILABLE_ROOMS(@checkin, @checkout) ro ON rc.hotel_ID = ro.hotel_ID AND rc.roomCategory_ID = ro.roomCategory_ID WHERE rc.hotel_ID = @hotel_ID;"
+												"options":"SELECT DISTINCT rc.roomCategory_ID, rc.categoryTitle FROM view_roomCategory_[roomCategory] rc INNER JOIN dbo.FN_GET_AVAILABLE_ROOMS(@checkin, @checkout) ro ON rc.hotel_ID = ro.hotel_ID AND rc.roomCategory_ID = ro.roomCategory_ID WHERE rc.hotel_ID = @hotel_ID;"
 											}
 										]
 									}
@@ -733,11 +733,11 @@
 								},
 								{
 									"title":"Total rooms",
-									"sql":"SELECT COUNT(*) AS room_count\nFROM room\nWHERE hotel_ID = @hotel_ID;"
+									"sql":"SELECT COUNT(*) AS room_count\nFROM view_room_[room]\nWHERE hotel_ID = @hotel_ID;"
 								},
 								{
 									"title":"Total room categories",
-									"sql":"SELECT COUNT(*) AS roomCategory_count\nFROM roomCategory\nWHERE hotel_ID = @hotel_ID;"
+									"sql":"SELECT COUNT(*) AS roomCategory_count\nFROM view_roomCategory_[roomCategory]\nWHERE hotel_ID = @hotel_ID;"
 								}
 							],
 							"params":[
@@ -1223,7 +1223,7 @@
 							"runOnSelect":true,
 							"insert":{
 								"title":"Create new additional booking option",
-								"sql":"INSERT INTO view_additionalOption_[additionalOption] (hotel_ID, additionalOptionTitle, price) \nVALUES (@hotel_ID, @additionalOptionTitle, @price);",
+								"sql":"INSERT INTO view_additionalOption_[additionalOption] (hotel_ID, additionalOptionTitle, price) \nVALUES (@hotel_ID, @title, @price);",
 								"params":[
 									{
 										"name":"hotel_ID",

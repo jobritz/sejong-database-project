@@ -1,11 +1,12 @@
+const dotenv = require('@dotenvx/dotenvx');
+dotenv.config();
+
 const express = require("express");
 const sql = require("mssql");
 const session = require("express-session");
 const path = require("path");
 
 const app = express();
-const dotenv = require('@dotenvx/dotenvx');
-dotenv.config();
 
 const PORT = process.env.PORT;
 
@@ -16,7 +17,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "frontend")));
 app.use(
 	session({
-		secret: "sql-demo-secret-key",
+		secret: process.env.SESSION_SECRET,
 		resave: false,
 		saveUninitialized: false,
 		cookie: {
@@ -109,13 +110,14 @@ function requireAuth(req, res, next) {
 
 // ─── SQL Execute Endpoint ─────────────────────────────────────────────────────
 app.post("/api/sql/execute", requireAuth, async (req, res) => {
-	const { query, params } = req.body;
+	const { query } = req.body;
+	const params = req.body.params ?? {};
 	if (!query) return res.status(400).json({ error: "No query provided." });
 
 	const pool = connections[req.session.id];
 	try {
 		const request = pool.request();
-
+		/*
 		for (const [key, value] of Object.entries(params)) {
 			if (value === null || value === undefined) continue;
 			const num = Number(value);
@@ -124,6 +126,11 @@ app.post("/api/sql/execute", requireAuth, async (req, res) => {
 			} else {
 				request.input(key, sql.NVarChar, value);
 			}
+		}
+		*/
+		for (const [key, value] of Object.entries(params)) {
+			if (value === null || value === undefined) continue;
+			request.input(key, sql.NVarChar, String(value));
 		}
 
 		const startTime = Date.now();

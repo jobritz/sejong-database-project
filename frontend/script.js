@@ -53,14 +53,25 @@ createApp({
 				INNER JOIN sys.database_principals AS DP1 ON DRM.role_principal_id = DP1.principal_id 
 				INNER JOIN sys.database_principals AS DP2 ON DRM.member_principal_id = DP2.principal_id 
 				WHERE DP2.name = USER_NAME();`
-			this.executeSql(sql, {})
-				.then(data => {
-					this.currentRole = String(Object.values(data.recordset[0])[0]);
-					this.selectCategory(this.visibleCategories[0]);
-					this.autoSelect = this.currentRole !== 'system_admin';
-					this.selectQuery(this.currentCat.commands[0]);
-				})
-				.catch(e => console.error(e));
+			const init = () => 
+				this.executeSql(sql, {})
+					.then(data => {
+						this.currentRole = String(Object.values(data.recordset[0])[0]);
+						this.selectCategory(this.visibleCategories[0]);
+						this.autoSelect = this.currentRole !== 'system_admin';
+						this.selectQuery(this.currentCat.commands[0]);
+					})
+					.catch(e => console.error(e));
+						
+			if (this.categories.length > 0) {
+				init();
+			} else {
+				const unwatch = this.$watch('categories', cats => {
+					if (cats.length === 0) return;
+					unwatch();
+					init();
+				});
+			}
 		}
 	},
 
@@ -265,13 +276,14 @@ createApp({
 		
 		runKpiQueries(queries) {
 			this.kpiResults = {};
-			for (const q of queries.sql) {
-				this.kpiLoading = true;
-				this.executeSql(q.sql, this.mergedParams)
-					.then(data => (this.kpiResults[q.title] = String(Object.values(data.recordset[0])[0])))
-					.catch(e => (this.kpiResults[q.title] = String(e)))
-					.finally(() => (this.kpiLoading = false));
-			}	
+			this.kpiLoading = true;
+			Promise.all(
+				queries.sql.map(q =>
+					this.executeSql(q.sql, this.mergedParams)
+						.then(data => (this.kpiResults[q.title] = String(Object.values(data.recordset[0])[0])))
+						.catch(e => (this.kpiResults[q.title] = String(e)))
+					)
+				).finally(() => (this.kpiLoading = false));
 		},
 		
 		async executeSql(sql, params) {
