@@ -24,6 +24,7 @@ A full-stack web application that provides a role-aware SQL interface for managi
 
 ## Architecture
 
+```
 Browser (Vue 3 SPA)
 │  HTTP / JSON
 ▼
@@ -31,6 +32,7 @@ Express.js server  (server.js)
 │  mssql
 ▼
 MS SQL Server database
+```
 
 The Express server acts as a proxy: it authenticates users against the database itself (SQL Server logins), holds one `ConnectionPool` per session, and forwards parameterised queries from the UI.
 
@@ -97,6 +99,7 @@ Then open `http://localhost:3000` in your browser.
 
 ## Project Structure
 
+```
 project/
 ├── server.js               # Express application & API routes
 ├── sql-commands.json       # All SQL query definitions and UI metadata
@@ -106,7 +109,8 @@ project/
 	├── index.html          # Vue 3 SPA shell
 	├── style.css           # Design system & component styles
 	└── script.js           # Vue 3 application logic
-	
+```
+
 ---
 
 ## How It Works
