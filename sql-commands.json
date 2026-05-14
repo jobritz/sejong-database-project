@@ -191,7 +191,7 @@
 					"id":"running_total_reservations",
 					"title":"Reservation increase",
 					"type":"table",
-					"description":"Monthly increase of reservation",
+					"description":"Monthly increase of reservations",
 					"sql":"WITH ReservationMonthYear AS (\n\tSELECT reservation_ID, MONTH(checkin) AS month_num, YEAR(checkin) AS [year], DATENAME(month , checkin) AS [month]\n\tFROM view_reservation_[reservation]\n)\nSELECT [year], [month], COUNT(reservation_ID) AS monthly_reservations, \n\tSUM(COUNT(reservation_ID)) OVER(ORDER BY [year], month_num ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_reservations\nFROM ReservationMonthYear\nGROUP BY [year], [month], month_num\nORDER BY [year] DESC, month_num DESC;",
 					"params":[
 						
@@ -210,15 +210,46 @@
 					"runOnSelect":true
 				},
 				{
-					"id":"hotel_earnings_ranking",
-					"title":"Hotel total earnings",
-					"type":"table",
-					"description":"Ranking of all hotels by their total earnings",
-					"sql":"SELECT ho.hotel_ID, ho.hotelName, dbo.FN_FORMAT_PRICE(SUM(iv.totalPrice)) AS total_earnings,\n\tDENSE_RANK() OVER(ORDER BY SUM(iv.totalPrice) DESC) AS hotel_earnings_rank\nFROM view_invoice_[invoice] iv\nRIGHT OUTER JOIN view_reservation_[reservation] re ON re.reservation_ID = iv.reservation_ID\nRIGHT OUTER JOIN view_room_reservation_[room_reservation] rr ON rr.reservation_ID = re.reservation_ID\nRIGHT OUTER JOIN view_hotel_[hotel] ho ON ho.hotel_ID = rr.hotel_ID\nGROUP BY ho.hotel_ID, ho.hotelName;",
-					"params":[
-						
-					],
-					"runOnSelect":true
+    				"id": "hotel_revenue_reservation_rank",
+    				"title": "Hotel Revenue and Reservation Ranking",
+    				"type": "table",
+    				"description": "Ranking of all hotels by total revenue and by total reservation count",
+    				"sql": "WITH ReservationCounts AS (\n\tSELECT ho.hotel_ID, COUNT(DISTINCT re.reservation_ID) AS total_reservations\n\tFROM view_hotel_[hotel] ho\n\tINNER JOIN view_room_[room] ro ON ho.hotel_ID = ro.hotel_ID\n\tINNER JOIN view_room_reservation_[room_reservation] rr ON ro.hotel_ID = rr.hotel_ID\n\t\tAND ro.roomNumber = rr.roomNumber\n\tINNER JOIN view_reservation_[reservation] re ON rr.reservation_ID = re.reservation_ID\n\tGROUP BY ho.hotel_ID\n)\nSELECT ho.hotelName,\n\tdbo.FN_FORMAT_PRICE(SUM(iv.totalPrice)) AS total_revenue,\n\tDENSE_RANK() OVER(ORDER BY SUM(iv.totalPrice) DESC) AS revenue_rank,\n\trc.total_reservations,\n\tDENSE_RANK() OVER(ORDER BY rc.total_reservations DESC) AS reservations_rank\nFROM ReservationCounts rc\nLEFT OUTER JOIN view_hotel_[hotel] ho ON rc.hotel_ID = ho.hotel_ID\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON rr.hotel_ID = ho.hotel_ID\nLEFT OUTER JOIN view_reservation_[reservation] re ON re.reservation_ID = rr.reservation_ID\nLEFT OUTER JOIN view_invoice_[invoice] iv ON iv.reservation_ID = re.reservation_ID\nGROUP BY ho.hotelName, rc.total_reservations\nORDER BY revenue_rank;",
+    				"params": [
+    				
+    				],
+    				"runOnSelect": true
+				},
+				{
+    				"id": "customer_spending_rank",
+    				"title": "Customer Spending Ranking",
+    				"type": "table",
+    				"description": "All customers ranked by total invoice spending",
+    				"sql": "SELECT cu.customer_ID,\n\tdbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS full_name,\n\tCOUNT(DISTINCT re.reservation_ID) AS total_reservations,\n\tdbo.FN_FORMAT_PRICE(SUM(iv.totalPrice)) AS total_spent,\n\tDENSE_RANK() OVER (ORDER BY SUM(iv.totalPrice) DESC) AS spending_rank\nFROM view_customer_[customer] cu\nINNER JOIN view_reservation_[reservation] re ON re.customer_ID = cu.customer_ID\nINNER JOIN view_invoice_[invoice] iv ON iv.reservation_ID = re.reservation_ID\nGROUP BY cu.customer_ID, cu.firstName, cu.lastName\nORDER BY spending_rank ASC;",
+    				"params": [
+    
+    				],
+    				"runOnSelect": true
+				},
+				{
+    				"id": "room_category_popularity",
+    				"title": "Room Category Popularity Ranking",
+    				"type": "table",
+    				"description": "All room categories across every hotel ranked by total bookings (RANK)",
+    				"sql": "SELECT ho.hotelName, rc.categoryTitle AS category,\n\tCOUNT(rr.reservation_ID) AS total_bookings,\n\tRANK() OVER (ORDER BY COUNT(rr.reservation_ID) DESC) AS popularity_rank\nFROM view_roomCategory_[roomCategory] rc\nINNER JOIN view_hotel_[hotel] ho ON ho.hotel_ID = rc.hotel_ID\nLEFT OUTER JOIN view_room_[room] ro ON ro.roomCategory_ID = rc.roomCategory_ID\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON rr.hotel_ID = ro.hotel_ID\n\tAND rr.roomNumber = ro.roomNumber\nGROUP BY ho.hotelName, rc.categoryTitle\nORDER BY popularity_rank;",
+    				"params": [
+    				
+    				],
+    				"runOnSelect": true
+				},
+				{
+    				"id": "longest_reservations",
+    				"title": "Longest Reservations Ranking",
+    				"type": "table",
+    				"description": "All reservations ranked from longest to shortest stay in nights (DENSE_RANK)",
+    				"sql": "SELECT DISTINCT re.reservation_ID, dbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS customer, ho.hotelName,\n\tre.checkin, re.checkout, DATEDIFF(day, re.checkin, re.checkout) AS nights,\n\tDENSE_RANK() OVER (ORDER BY DATEDIFF(day, re.checkin, re.checkout) DESC) AS duration_rank\nFROM view_reservation_[reservation] re\nINNER JOIN view_customer_[customer] cu ON re.customer_ID = cu.customer_ID\nINNER JOIN view_room_reservation_[room_reservation] rr ON rr.reservation_ID = re.reservation_ID\nINNER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nORDER BY duration_rank;",
+    				"params": [],
+    				"runOnSelect": true
 				},
 				{
 					"id":"never_booked_rooms",
@@ -296,11 +327,120 @@
 					"runOnSelect":true,
 					"subSql":[
 						{
+							"id":"customer_overview",
+							"title":"Overview",
+							"type":"kpi",
+							"description":"",
+							"sql":[
+								{
+									"title":"Name",
+									"sql":"SELECT dbo.FN_FULL_NAME(firstName, lastName) AS full_name\nFROM view_customer_[customer]\nWHERE customer_ID = @customer_ID;"
+								},
+								{
+									"title":"Next destination",
+									"sql":"SELECT TOP 1 ho.city AS next_destination\nFROM view_reservation_[reservation] re\nINNER JOIN view_room_reservation_[room_reservation] rr ON re.reservation_ID = rr.reservation_ID\nINNER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nWHERE re.customer_ID = @customer_ID\n\tAND re.checkin > GETDATE()\nORDER BY re.checkin;"
+								},
+								{
+									"title":"Total spending",
+									"sql":"SELECT dbo.FN_FORMAT_PRICE(SUM(iv.totalPrice)) AS total_spending\nFROM view_invoice_[invoice] iv\nINNER JOIN view_reservation_[reservation] re ON iv.reservation_ID = re.reservation_ID\nWHERE re.customer_ID = @customer_ID;"
+								}																
+							],
+							"params":[
+								{
+									"name":"customer_ID",
+									"label":"customer ID",
+									"type":"text",
+									"placeholder":"CUS*****",
+									"required":true,
+									"readonly":true
+								}							
+							],
+							"runOnSelect":true,
+							"insert":{
+								"title":"Update profile",
+								"sql":"UPDATE view_customer_[customer]\nSET firstName = @firstName,\n\tlastName = @lastName,\n\tphoneNumber = @phoneNumber,\n\temail = @email\nWHERE customer_ID = @customer_ID;\nUPDATE view_address_[address]\nSET country = @country,\n\tcity = @city,\n\tdistrict = @district,\n\tstreetAddress = @streetAddress\nWHERE address_ID = (\n\tSELECT TOP 1 address_ID \n\tFROM view_customer_[customer]\n\tWHERE customer_ID = @customer_ID\n)",
+								"params":[
+									{
+										"name":"customer_ID",
+										"label":"customer ID",
+										"type":"text",
+										"placeholder":"CUS*****",
+										"required":true,
+										"readonly":true
+									},
+									{
+										"name":"firstName",
+										"label":"first name",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"lastName",
+										"label":"last name",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"phoneNumber",
+										"label":"phone number",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"email",
+										"label":"email",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"country",
+										"label":"country",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"city",
+										"label":"city",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"district",
+										"label":"district",
+										"type":"text",
+										"placeholder":"",
+										"required":false,
+										"readonly":false
+									},
+									{
+										"name":"streetAddress",
+										"label":"street address",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									}								
+								]
+							}			
+						},
+						{
 							"id":"get_customer_reservations",
-							"title":"Reservations",
+							"title":"All reservations",
 							"type":"table",
 							"description":"",
-							"sql":"SELECT re.reservation_ID, dbo.FN_FORMAT_PRICE(dbo.FN_GET_RESERVATION_PRICE(re.reservation_ID)) AS totalPrice, re.checkin, re.checkout, re.guests, dbo.FN_STATUS_DETAILS(re.status) AS status, COALESCE(ho.hotelName, '') AS hotelName, COUNT(rr.roomNumber) AS reserved_rooms\nFROM view_reservation_[reservation] re\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON re.reservation_ID = rr.reservation_ID\nLEFT OUTER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nWHERE re.customer_ID = @customer_ID\nGROUP BY re.reservation_ID, re.checkin, re.checkout, re.guests, status, ho.hotelName\nORDER BY re.checkin ASC;",
+							"sql":"SELECT re.reservation_ID, dbo.FN_FORMAT_PRICE(dbo.FN_GET_RESERVATION_PRICE(re.reservation_ID)) AS totalPrice, re.checkin, re.checkout, re.guests, dbo.FN_STATUS_DETAILS(re.status) AS status, COALESCE(ho.hotelName, '') AS hotelName, ho.hotel_ID, COUNT(rr.roomNumber) AS reserved_rooms\nFROM view_reservation_[reservation] re\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON re.reservation_ID = rr.reservation_ID\nLEFT OUTER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nWHERE re.customer_ID = @customer_ID\nGROUP BY re.reservation_ID, re.checkin, re.checkout, re.guests, status, ho.hotelName, ho.hotel_ID\nORDER BY re.checkin ASC;",
 							"params":[
 								{
 									"name":"customer_ID",
@@ -314,11 +454,28 @@
 							"runOnSelect":true,
 							"subSql":[
 								{
-									"id":"cancel_reservation_customer",
-									"title":"Cancel reservation",
-									"type":"void",
+									"id":"reservation_overview",
+									"title":"Reservation overview",
+									"type":"kpi",
 									"description":"",
-									"sql":"UPDATE view_reservation_[reservation]\nSET status = 'C'\nWHERE reservation_ID = @reservation_ID\n\tAND status = 'R'",
+									"sql":[
+										{
+											"title":"Hotel",
+											"sql":"SELECT ho.hotelName\nFROM view_room_reservation_[room_reservation] rr\nINNER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nWHERE rr.reservation_ID = @reservation_ID;"
+										},
+										{
+											"title":"Status",
+											"sql":"SELECT dbo.FN_STATUS_DETAILS(re.status) AS status\nFROM view_reservation_[reservation] re\nWHERE re.reservation_ID = @reservation_ID;"
+										},
+										{
+											"title":"Total price",
+											"sql":"SELECT dbo.FN_FORMAT_PRICE(dbo.FN_GET_RESERVATION_PRICE(@reservation_ID)) AS total_price;"
+										},
+										{
+											"title":"Nights",
+											"sql":"SELECT DATEDIFF(day, checkin, checkout) AS nights\nFROM view_reservation_[reservation]\nWHERE reservation_ID = @reservation_ID;"
+										}
+									],
 									"params":[
 										{
 											"name":"reservation_ID",
@@ -329,7 +486,153 @@
 											"readonly":true
 										}
 									],
-									"runOnSelect":false
+									"runOnSelect":true,
+									"insert":{
+										"title":"Cancel reservation",
+										"sql":"UPDATE view_reservation_[reservation]\nSET status = 'C'\nWHERE reservation_ID = @reservation_ID\n\tAND status = 'R';",
+										"params":[
+											{
+												"name":"reservation_ID",
+												"label":"reservation ID",
+												"type":"text",
+												"placeholder":"RES*****",
+												"required":true,
+												"readonly":true
+											}
+										]
+									}
+								},
+								{
+									"id":"get_reservation_additionalOptions",
+									"title":"Additional booking options",
+									"type":"table",
+									"description":"",
+									"sql":"SELECT ra.reservation_ID, ao.additionalOptionTitle AS booking_option, ra.amount, dbo.FN_FORMAT_PRICE(ra.amount * ao.price) AS total_price\nFROM view_additionalOption_[additionalOption] ao\nINNER JOIN view_reservation_additionalOption_[reservation_additionalOption] ra ON ao.additionalOptionTitle = ra.additionalOptionTitle\n\tAND ao.hotel_ID = ra.hotel_ID\nWHERE ra.reservation_ID = @reservation_ID;",
+									"params":[
+										{
+											"name":"reservation_ID",
+											"label":"reservation ID",
+											"type":"text",
+											"placeholder":"RES*****",
+											"required":true,
+											"readonly":true
+										}									
+									],
+									"runOnSelect":true,
+									"insert":{
+										"title":"Add booking option",
+										"sql":"INSERT INTO view_reservation_additionalOption_system_admin (reservation_ID, additionalOptionTitle, hotel_ID, amount)\nVALUES (@reservation_ID, @additionalOption_selection, @hotel_ID, @amount);",
+										"params":[
+											{
+												"name":"reservation_ID",
+												"label":"reservation ID",
+												"type":"text",
+												"placeholder":"RES*****",
+												"required":true,
+												"readonly":true
+											},
+											{
+												"name":"hotel_ID",
+												"label":"hotel ID",
+												"type":"text",
+												"placeholder":"HTL*****",
+												"required":true,
+												"readonly":true
+											},
+											{
+												"name":"additionalOption_selection",
+												"label":"booking option",
+												"type":"select",
+												"required":true,
+												"readonly":false,
+												"options":"SELECT additionalOptionTitle AS ID, additionalOptionTitle AS title FROM view_additionalOption_[additionalOption] WHERE hotel_ID = @hotel_ID;"												
+											},
+											{
+												"name":"amount",
+												"label":"amount",
+												"type":"number",
+												"placeholder":"1",
+												"required":true,
+												"readonly":false												
+											}										
+										]
+									},
+									"subSql":[
+										{
+											"id":"change_reservation_additionalOption_amount",
+											"title":"Change amount",
+											"type":"void",
+											"description":"",
+											"sql":"UPDATE view_reservation_additionalOption_[reservation_additionalOption]\nSET amount = @amount\nWHERE reservation_ID = @reservation_ID\n\tAND hotel_ID = @hotel_ID\n\tAND additionalOptionTitle = @booking_option;",
+											"params":[
+												{
+													"name":"reservation_ID",
+													"label":"reservation ID",
+													"type":"text",
+													"placeholder":"RES*****",
+													"required":true,
+													"readonly":true
+												},
+												{
+													"name":"hotel_ID",
+													"label":"hotel ID",
+													"type":"text",
+													"placeholder":"HTL*****",
+													"required":true,
+													"readonly":true
+												},
+												{
+													"name":"booking_option",
+													"label":"booking option",
+													"type":"text",
+													"placeholder":"",
+													"required":true,
+													"readonly":true
+												},
+												{
+													"name":"amount",
+													"label":"amount",
+													"type":"number",
+													"placeholder":"1",
+													"required":true,
+													"readonly":false
+												}																																								
+											]										
+										},
+										{
+											"id":"remove_reservation_additionalOption",
+											"title":"Remove booking option",
+											"type":"void",
+											"description":"",
+											"sql":"DELETE FROM view_reservation_additionalOption_[reservation_additionalOption]\nWHERE reservation_ID = @reservation_ID\n\tAND hotel_ID = @hotel_ID\n\tAND additionalOptionTitle = @booking_option;",
+											"params":[
+												{
+													"name":"reservation_ID",
+													"label":"reservation ID",
+													"type":"text",
+													"placeholder":"RES*****",
+													"required":true,
+													"readonly":true
+												},
+												{
+													"name":"hotel_ID",
+													"label":"hotel ID",
+													"type":"text",
+													"placeholder":"HTL*****",
+													"required":true,
+													"readonly":true
+												},
+												{
+													"name":"booking_option",
+													"label":"booking option",
+													"type":"text",
+													"placeholder":"",
+													"required":true,
+													"readonly":true
+												}																																							
+											]										
+										}
+									]
 								}
 							]
 						},
@@ -488,88 +791,6 @@
 									}
 								}
 							]
-						},
-						{
-							"id":"update_customer",
-							"title":"Update profile",
-							"type":"void",
-							"description":"",
-							"sql":"UPDATE view_customer_[customer]\nSET firstName = @firstName,\n\tlastName = @lastName,\n\tphoneNumber = @phoneNumber,\n\temail = @email\nWHERE customer_ID = @customer_ID;\nUPDATE view_address_[address]\nSET country = @country,\n\tcity = @city,\n\tdistrict = @district,\n\tstreetAddress = @streetAddress\nWHERE address_ID = (\n\tSELECT TOP 1 address_ID \n\tFROM view_customer_[customer]\n\tWHERE customer_ID = @customer_ID\n)",
-							"params":[
-								{
-									"name":"customer_ID",
-									"label":"customer ID",
-									"type":"text",
-									"placeholder":"CUS*****",
-									"required":true,
-									"readonly":true
-								},
-								{
-									"name":"firstName",
-									"label":"first name",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"lastName",
-									"label":"last name",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"phoneNumber",
-									"label":"phone number",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"email",
-									"label":"email",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"country",
-									"label":"country",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"city",
-									"label":"city",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"district",
-									"label":"district",
-									"type":"text",
-									"placeholder":"",
-									"required":false,
-									"readonly":false
-								},
-								{
-									"name":"streetAddress",
-									"label":"street address",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								}
-							],
-							"runOnSelect":false
 						},
 						{
 							"id":"delete_customer",
@@ -750,81 +971,77 @@
 									"readonly":true
 								}
 							],
-							"runOnSelect":true
-						},
-						{
-							"id":"update_hotel",
-							"title":"Update hotel profile",
-							"type":"void",
-							"description":"",
-							"sql":"UPDATE view_hotel_[hotel]\nSET hotelName = @hotelName,\n\tphoneNumber = @phoneNumber,\n\temail = @email\nWHERE hotel_ID = @hotel_ID;\nUPDATE view_address_[address]\nSET country = @country,\n\tcity = @city,\n\tdistrict = @district,\n\tstreetAddress = @streetAddress\nWHERE address_ID = (\n\tSELECT TOP 1 address_ID \n\tFROM view_hotel_[hotel]\n\tWHERE hotel_ID = @hotel_ID\n);",
-							"params":[
-								{
-									"name":"hotel_ID",
-									"label":"hotel ID",
-									"type":"text",
-									"placeholder":"HTL*****",
-									"required":true,
-									"readonly":true
-								},
-								{
-									"name":"hotelName",
-									"label":"hotel name",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"phoneNumber",
-									"label":"phone number",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"email",
-									"label":"email",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"country",
-									"label":"country",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"city",
-									"label":"city",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"district",
-									"label":"district",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								},
-								{
-									"name":"streetAddress",
-									"label":"street address",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
-								}
-							],
-							"runOnSelect":false
+							"runOnSelect":true,
+							"insert":{
+								"title":"Update hotel profile",
+								"sql":"UPDATE view_hotel_[hotel]\nSET hotelName = @hotelName,\n\tphoneNumber = @phoneNumber,\n\temail = @email\nWHERE hotel_ID = @hotel_ID;\nUPDATE view_address_[address]\nSET country = @country,\n\tcity = @city,\n\tdistrict = @district,\n\tstreetAddress = @streetAddress\nWHERE address_ID = (\n\tSELECT TOP 1 address_ID \n\tFROM view_hotel_[hotel]\n\tWHERE hotel_ID = @hotel_ID\n);",
+								"params":[
+									{
+										"name":"hotel_ID",
+										"label":"hotel ID",
+										"type":"text",
+										"placeholder":"HTL*****",
+										"required":true,
+										"readonly":true
+									},
+									{
+										"name":"hotelName",
+										"label":"hotel name",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"phoneNumber",
+										"label":"phone number",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"email",
+										"label":"email",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"country",
+										"label":"country",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"city",
+										"label":"city",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"district",
+										"label":"district",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									},
+									{
+										"name":"streetAddress",
+										"label":"street address",
+										"type":"text",
+										"placeholder":"",
+										"required":true,
+										"readonly":false
+									}
+								]
+							}
 						},
 						{
 							"id":"get_roomCategories",
@@ -1411,22 +1628,40 @@
 							]
 						},
 						{
-							"id":"hotel_statistics",
-							"title":"Statistics",
-							"type":"table",
-							"description":"",
-							"sql":"WITH monthly AS (\n\tSELECT\n\t\tYEAR(iv.invoiceDate) AS [year],\n\t\tMONTH(iv.invoiceDate) AS [month],\n\t\tSUM(iv.totalPrice) AS monthly_revenue\n\tFROM view_invoice_[invoice] iv\n\tINNER JOIN view_room_reservation_[room_reservation] rr ON rr.reservation_ID = iv.reservation_ID\n\tWHERE rr.hotel_ID = @hotel_ID\n\tGROUP BY YEAR(iv.invoiceDate), MONTH(iv.invoiceDate)\n)\nSELECT\n\t[year], [month],\n\tmonthly_revenue,\n\tSUM(monthly_revenue) OVER (PARTITION BY [year] ORDER BY [month]) AS running_total_year,\n\tSUM(monthly_revenue) OVER (ORDER BY [year], [month]) AS running_total_all,\n\tLAG(monthly_revenue, 1) OVER (ORDER BY [year], [month]) AS prev_month_revenue,\n\tCAST(\n\t\t100.0 * (monthly_revenue - LAG(monthly_revenue, 1) OVER (ORDER BY [year], [month]))\n\t\t/ NULLIF(LAG(monthly_revenue, 1) OVER (ORDER BY [year], [month]), 0)\n\t AS DECIMAL(5,2)) AS mom_growth_pct\nFROM monthly\nORDER BY [year], [month]",
-							"params":[
-								{
-									"name":"hotel_ID",
-									"label":"hotel ID",
-									"type":"text",
-									"placeholder":"HTL*****",
-									"required":true,
-									"readonly":true
-								}
-							],
-							"runOnSelect":true
+    						"id": "room_booking_rank",
+    						"title": "Statistics: Room Category Booking Rank",
+    						"type": "table",
+    						"description": "",
+    						"sql": "SELECT rc.roomCategory_ID, rc.categoryTitle AS category, dbo.FN_FORMAT_PRICE(rc.price) AS price,\n\tCOUNT(rr.reservation_ID) AS total_bookings,\n\tRANK() OVER (ORDER BY COUNT(rr.reservation_ID) DESC) AS booking_rank\nFROM view_roomCategory_[roomCategory] rc\nLEFT OUTER JOIN view_room_[room] ro ON ro.roomCategory_ID = rc.roomCategory_ID\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON rr.hotel_ID = ro.hotel_ID\n\tAND rr.roomNumber = ro.roomNumber\nWHERE rc.hotel_ID = @hotel_ID\nGROUP BY rc.roomCategory_ID, rc.categoryTitle, rc.price\nORDER BY booking_rank ASC;",
+    						"params": [
+        						{
+            						"name": "hotel_ID",
+            						"label": "hotel ID",
+            						"type": "text",
+            						"placeholder": "HTL*****",
+            						"required": true,
+           							"readonly": true
+        						}
+    						],
+    						"runOnSelect": true
+						},
+						{
+    						"id": "peak_checkin_days",
+    						"title": "Statistics: Peak Check-In Days",
+    						"type": "table",
+    						"description": "",
+    						"sql": "WITH AllWeekdays AS (\n\tSELECT 1 AS day_number, 'Monday' AS weekday\n\tUNION ALL SELECT 2, 'Tuesday'\n\tUNION ALL SELECT 3, 'Wednesday'\n\tUNION ALL SELECT 4, 'Thursday'\n\tUNION ALL SELECT 5, 'Friday'\n\tUNION ALL SELECT 6, 'Saturday'\n\tUNION ALL SELECT 7, 'Sunday'\n), HotelReservations AS (\n\tSELECT re.reservation_ID, DATENAME(weekday, re.checkin) AS weekday\n\tFROM view_reservation_[reservation] re\n\tINNER JOIN view_room_reservation_[room_reservation] rr ON rr.reservation_ID = re.reservation_ID\n\tWHERE rr.hotel_ID = @hotel_ID\n)\nSELECT aw.weekday, COUNT(DISTINCT hr.reservation_ID) AS total_reservations,\n\tRANK() OVER (ORDER BY COUNT(DISTINCT hr.reservation_ID) DESC) AS checkin_popularity_rank\nFROM AllWeekdays aw\nLEFT OUTER JOIN HotelReservations hr ON aw.weekday = hr.weekday\nGROUP BY aw.weekday;",
+    						"params": [
+        						{
+            						"name": "hotel_ID",
+            						"label": "hotel ID",
+            						"type": "text",
+            						"placeholder": "HTL*****",
+            						"required": true,
+            						"readonly": true
+        						}
+    						],
+    						"runOnSelect": true
 						},
 						{
 							"id":"delete_hotel",

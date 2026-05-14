@@ -200,6 +200,69 @@
 									</button>
 								</div>
 							</div>
+							
+							<!-- KPI RESULTS -->
+							<div class="panel" v-if="currentQuery.type === 'kpi'">
+								<div class="panel-header">
+									<div class="panel-header-left">
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+										<span class="panel-title">Overview</span>
+									</div>
+									<button class="btn-run btn-run-sm" :disabled="kpiLoading" @click="runKpiQueries(currentQuery)">
+										<svg v-if="!kpiLoading" width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
+										<svg v-else width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+										{{ kpiLoading ? 'Running…' : 'Refresh' }}
+									</button>
+								</div>
+								<div class="panel-body">
+									<div class="kpi-grid">
+										<div v-for="[title, value] in Object.entries(kpiResults)" :key="title" class="kpi-item">
+											<div class="kpi-label">{{ title }}</div>
+											<div class="kpi-value">{{ value }}</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							
+							<!-- INSERT FORM -->
+							<div class="panel" v-if="currentQuery.insert">
+								<div class="panel-header">
+									<div class="panel-header-left">
+										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+										<span class="panel-title">
+											{{ currentQuery.insert.title ? currentQuery.insert.title : 'Add New Record' }}
+										</span>
+									</div>
+									<button class="btn-toggle-sql small" @click="currentQuery._showInsertSql = !currentQuery._showInsertSql">
+										<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+										{{ currentQuery._showInsertSql ? 'Hide SQL' : 'Show SQL' }}
+									</button>
+								</div>
+								<div class="panel-body">
+									<transition name="slide">
+										<pre class="sql-code" v-if="currentQuery._showInsertSql" v-html="highlightSql(currentQuery.insert)" style="margin-bottom:16px"></pre>
+									</transition>
+									<div class="param-form">
+										<div class="param-row" v-for="p in currentQuery.insert.params" :key="p.name">
+											<label class="param-label">
+												{{ p.label }}
+												<span class="req" v-if="p.required">*</span>
+											</label>
+											<select v-if="p.type === 'select'" class="param-select" v-model="selectValues[p.name]">
+												<option v-for="o in paramValues[p.name]" :value="Object.values(o)[0]">{{ Object.values(o)[1] }}</option>
+											</select>
+											<input v-else class="param-input" :type="p.type" :placeholder="p.placeholder" v-model="paramValues[p.name]" :readonly="p.readonly" />
+										</div>
+									</div>
+								</div>
+								<div class="panel-footer">
+									<button class="btn-run" :disabled="runLoading" @click="runQuery(currentQuery.insert)">
+										<svg v-if="!runLoading" width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
+										<svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+										{{ runLoading ? 'Saving…' : 'Save Record' }}
+									</button>
+								</div>
+							</div>
 
 							<!-- RESULTS TABLE -->
 							<div class="panel" v-if="queryResult !== null && currentQuery.type === 'table'">
@@ -255,70 +318,7 @@
 									</div>
 								</div>
 							</div>
-
-							<!-- KPI RESULTS -->
-							<div class="panel" v-if="currentQuery.type === 'kpi'">
-								<div class="panel-header">
-									<div class="panel-header-left">
-										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-										<span class="panel-title">Overview</span>
-									</div>
-									<button class="btn-run btn-run-sm" :disabled="kpiLoading" @click="runKpiQueries(currentQuery)">
-										<svg v-if="!kpiLoading" width="11" height="11" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
-										<svg v-else width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-										{{ kpiLoading ? 'Running…' : 'Refresh' }}
-									</button>
-								</div>
-								<div class="panel-body">
-									<div class="kpi-grid">
-										<div v-for="[title, value] in Object.entries(kpiResults)" :key="title" class="kpi-item">
-											<div class="kpi-label">{{ title }}</div>
-											<div class="kpi-value">{{ value }}</div>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<!-- INSERT FORM -->
-							<div class="panel" v-if="currentQuery.insert">
-								<div class="panel-header">
-									<div class="panel-header-left">
-										<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-										<span class="panel-title">
-											{{ currentQuery.insert.title ? currentQuery.insert.title : 'Add New Record' }}
-										</span>
-									</div>
-									<button class="btn-toggle-sql small" @click="currentQuery._showInsertSql = !currentQuery._showInsertSql">
-										<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-										{{ currentQuery._showInsertSql ? 'Hide SQL' : 'Show SQL' }}
-									</button>
-								</div>
-								<div class="panel-body">
-									<transition name="slide">
-										<pre class="sql-code" v-if="currentQuery._showInsertSql" v-html="highlightSql(currentQuery.insert)" style="margin-bottom:16px"></pre>
-									</transition>
-									<div class="param-form">
-										<div class="param-row" v-for="p in currentQuery.insert.params" :key="p.name">
-											<label class="param-label">
-												{{ p.label }}
-												<span class="req" v-if="p.required">*</span>
-											</label>
-											<select v-if="p.type === 'select'" class="param-select" v-model="selectValues[p.name]">
-												<option v-for="o in paramValues[p.name]" :value="Object.values(o)[0]">{{ Object.values(o)[1] }}</option>
-											</select>
-											<input v-else class="param-input" :type="p.type" :placeholder="p.placeholder" v-model="paramValues[p.name]" :readonly="p.readonly" />
-										</div>
-									</div>
-								</div>
-								<div class="panel-footer">
-									<button class="btn-run" :disabled="runLoading" @click="runQuery(currentQuery.insert)">
-										<svg v-if="!runLoading" width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
-										<svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-										{{ runLoading ? 'Saving…' : 'Save Record' }}
-									</button>
-								</div>
-							</div>
-
+							
 						</div>
 					</template>
 				</div>

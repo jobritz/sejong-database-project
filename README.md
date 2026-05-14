@@ -13,7 +13,7 @@ A full-stack web application that provides a role-aware SQL interface for managi
 - [Running the App](#running-the-app)
 - [Project Structure](#project-structure)
 - [How It Works](#how-it-works)
-  - [Authentication & Sessions](#authentication--sessions)
+  - [Authentication and Sessions](#authentication-and-sessions)
   - [Role-Based Views](#role-based-views)
   - [SQL Command Registry](#sql-command-registry)
   - [Frontend Navigation](#frontend-navigation)
@@ -115,7 +115,7 @@ project/
 
 ## How It Works
 
-### Authentication & Sessions
+### Authentication and Sessions
 
 Login is performed by attempting to open a real SQL Server `ConnectionPool` with the supplied credentials. If the connection succeeds, the pool is stored in a server-side map keyed by `req.session.id`. No passwords are stored in the Node process.
 
