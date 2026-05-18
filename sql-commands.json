@@ -1319,7 +1319,7 @@
 									{
 										"name":"roomNumber",
 										"label":"room number",
-										"type":"number",
+										"type":"text",
 										"placeholder":"",
 										"required":true,
 										"readonly":false
@@ -1361,7 +1361,7 @@
 										{
 											"name":"roomNumber",
 											"label":"room number",
-											"type":"number",
+											"type":"text",
 											"placeholder":"",
 											"required":true,
 											"readonly":true
@@ -1411,7 +1411,7 @@
 										{
 											"name":"roomNumber",
 											"label":"room number",
-											"type":"number",
+											"type":"text",
 											"placeholder":"",
 											"required":true,
 											"readonly":true
