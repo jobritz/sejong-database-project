@@ -2,7 +2,7 @@ const dotenv = require('@dotenvx/dotenvx');
 dotenv.config();
 
 const express = require("express");
-var favicon = require('serve-favicon');
+const favicon = require('serve-favicon');
 const sql = require("mssql");
 const session = require("express-session");
 const path = require("path");
@@ -10,10 +10,9 @@ const path = require("path");
 const app = express();
 
 const PORT = process.env.PORT;
-
 const SQL_COMMANDS = require("./sql-commands.json");
 
-// ─── Middleware ────────────────────────────────────────────────────────────────
+// App setup
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "frontend")));
 app.use(favicon(path.join(__dirname, "frontend", "favicon.ico"))); 
@@ -25,12 +24,12 @@ app.use(
 		cookie: {
 			secure: false,
 			maxAge: 1000 * 60 * 60
-		}, // 1 hour
+		},
 	})
 );
 
-// ─── Active Connections Pool ───────────────────────────────────────────────────
-const connections = {}; // sessionId → mssql.ConnectionPool
+// Active Connections
+const connections = {};
 
 function getConfig(body) {
 	return {
@@ -49,7 +48,7 @@ function getConfig(body) {
 	};
 }
 
-// ─── Auth: Login ──────────────────────────────────────────────────────────────
+// Login
 app.post("/api/auth/login", async (req, res) => {
 	const { username, password } = req.body;
 	if (!username || !password) {
@@ -83,7 +82,7 @@ app.post("/api/auth/login", async (req, res) => {
 	}
 });
 
-// ─── Auth: Logout ─────────────────────────────────────────────────────────────
+// Logout
 app.post("/api/auth/logout", async (req, res) => {
 	if (connections[req.session.id]) {
 		try { await connections[req.session.id].close(); } catch (_) {}
@@ -93,7 +92,7 @@ app.post("/api/auth/logout", async (req, res) => {
 	res.json({ success: true });
 });
 
-// ─── Auth: Status ─────────────────────────────────────────────────────────────
+// Authentication status
 app.get("/api/auth/status", (req, res) => {
 	if (req.session.user && connections[req.session.id]) {
 		res.json({ loggedIn: true, user: req.session.user });
@@ -102,7 +101,7 @@ app.get("/api/auth/status", (req, res) => {
 	}
 });
 
-// ─── Auth Guard Middleware ─────────────────────────────────────────────────────
+// Authentication guard 
 function requireAuth(req, res, next) {
 	if (!req.session.user || !connections[req.session.id]) {
 		return res.status(401).json({ error: "Not authenticated. Please log in first." });
@@ -110,7 +109,7 @@ function requireAuth(req, res, next) {
 	next();
 }
 
-// ─── SQL Execute Endpoint ─────────────────────────────────────────────────────
+// SQL Execute Endpoint
 app.post("/api/sql/execute", requireAuth, async (req, res) => {
 	const { query } = req.body;
 	const params = req.body.params ?? {};
@@ -119,17 +118,7 @@ app.post("/api/sql/execute", requireAuth, async (req, res) => {
 	const pool = connections[req.session.id];
 	try {
 		const request = pool.request();
-		/*
-		for (const [key, value] of Object.entries(params)) {
-			if (value === null || value === undefined) continue;
-			const num = Number(value);
-			if (!isNaN(num) && value !== "") {
-				request.input(key, sql.NVarChar, String(value));
-			} else {
-				request.input(key, sql.NVarChar, value);
-			}
-		}
-		*/
+
 		for (const [key, value] of Object.entries(params)) {
 			if (value === null || value === undefined) continue;
 			request.input(key, sql.NVarChar, String(value));
@@ -151,12 +140,12 @@ app.post("/api/sql/execute", requireAuth, async (req, res) => {
 	}
 });
 
-// ─── SQL Categories & Commands ─────────────────────────────────────────────────
+// Load SQL commands
 app.get("/api/categories", (req, res) => {
 	res.json(SQL_COMMANDS);
 });
 
-// ─── Start Server ─────────────────────────────────────────────────────────────
+// Start Server
 app.listen(PORT, () => {
 	console.log(`Hotel Booking System running at http://localhost:${PORT}\n`);
 });
