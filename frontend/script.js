@@ -264,9 +264,10 @@ createApp({
 							this.subBase = true;
 						}
 					}
-					if (query.insert?.sql === query.sql && this.currentQuery.runOnSelect) {
-						for (const p of this.currentQuery.insert.params)
+					if (this.currentQuery.insert?.sql === query.sql && this.currentQuery.runOnSelect) {
+						for (const p of this.currentQuery.insert.params) {
 							if (!p.readonly) this.paramValues[p.name] = '';
+						}
 						this.selectQuery(this.currentQuery);
 					}
 				})
@@ -280,7 +281,9 @@ createApp({
 			Promise.all(
 				queries.sql.map(q =>
 					this.executeSql(q.sql, this.mergedParams)
-						.then(data => (this.kpiResults[q.title] = String(Object.values(data.recordset[0])[0])))
+						.then(data => {
+							this.kpiResults[q.title] = String(Object.values(data.recordset[0])[0])
+						})
 						.catch(e => (this.kpiResults[q.title] = String(e)))
 					)
 				).finally(() => (this.kpiLoading = false));

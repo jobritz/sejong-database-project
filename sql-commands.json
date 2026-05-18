@@ -235,7 +235,7 @@
     				"id": "room_category_popularity",
     				"title": "Room Category Popularity Ranking",
     				"type": "table",
-    				"description": "All room categories across every hotel ranked by total bookings (RANK)",
+    				"description": "All room categories across every hotel ranked by total bookings",
     				"sql": "SELECT ho.hotelName, rc.categoryTitle AS category,\n\tCOUNT(rr.reservation_ID) AS total_bookings,\n\tRANK() OVER (ORDER BY COUNT(rr.reservation_ID) DESC) AS popularity_rank\nFROM view_roomCategory_[roomCategory] rc\nINNER JOIN view_hotel_[hotel] ho ON ho.hotel_ID = rc.hotel_ID\nLEFT OUTER JOIN view_room_[room] ro ON ro.roomCategory_ID = rc.roomCategory_ID\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON rr.hotel_ID = ro.hotel_ID\n\tAND rr.roomNumber = ro.roomNumber\nGROUP BY ho.hotelName, rc.categoryTitle\nORDER BY popularity_rank;",
     				"params": [
     				
@@ -246,7 +246,7 @@
     				"id": "longest_reservations",
     				"title": "Longest Reservations Ranking",
     				"type": "table",
-    				"description": "All reservations ranked from longest to shortest stay in nights (DENSE_RANK)",
+    				"description": "All reservations ranked from longest to shortest stay in nights",
     				"sql": "SELECT DISTINCT re.reservation_ID, dbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS customer, ho.hotelName,\n\tre.checkin, re.checkout, DATEDIFF(day, re.checkin, re.checkout) AS nights,\n\tDENSE_RANK() OVER (ORDER BY DATEDIFF(day, re.checkin, re.checkout) DESC) AS duration_rank\nFROM view_reservation_[reservation] re\nINNER JOIN view_customer_[customer] cu ON re.customer_ID = cu.customer_ID\nINNER JOIN view_room_reservation_[room_reservation] rr ON rr.reservation_ID = re.reservation_ID\nINNER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nORDER BY duration_rank;",
     				"params": [],
     				"runOnSelect": true
@@ -279,6 +279,7 @@
 				{
 					"id":"get_customers",
 					"title":"All customers",
+					"label":"Search customer",
 					"type":"table",
 					"description":"Show data of a customers account",
 					"sql":"SELECT cu.customer_ID, cu.firstName, cu.lastName, cu.phoneNumber, cu.email, ad.country, ad.city, ad.district, ad.streetAddress\nFROM view_customer_[customer] cu\nINNER JOIN view_address_[address] ad ON cu.address_ID = ad.address_ID\nWHERE cu.customer_ID LIKE '%' + @customer_ID + '%'\n\tAND (\n\t\tcu.firstName LIKE '%' + @firstName + '%'\n\t\t\tAND cu.lastName LIKE '%' + @lastName + '%'\n\t\t)\n\tAND (\n\t\tad.country LIKE '%' + @country + '%'\n\t\t\tAND ad.city LIKE '%' + @city + '%'\n\t\t)\nORDER BY cu.customer_ID ASC;",
@@ -338,7 +339,7 @@
 								},
 								{
 									"title":"Next destination",
-									"sql":"SELECT TOP 1 ho.city AS next_destination\nFROM view_reservation_[reservation] re\nINNER JOIN view_room_reservation_[room_reservation] rr ON re.reservation_ID = rr.reservation_ID\nINNER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nWHERE re.customer_ID = @customer_ID\n\tAND re.checkin > GETDATE()\nORDER BY re.checkin;"
+									"sql":"SELECT COALESCE(\n\t(\n\t\tSELECT TOP 1 ho.city\n\t\tFROM view_hotel_[hotel] ho\n\t\tINNER JOIN view_room_reservation_[room_reservation] rr ON rr.hotel_ID = ho.hotel_ID\n\t\tINNER JOIN view_reservation_[reservation] re ON re.reservation_ID = rr.reservation_ID\n\t\tWHERE re.customer_ID = @customer_ID\n\t\t\tAND re.checkin > GETDATE()\n\t\tORDER BY re.checkin\n\t), '') AS next_destination;"
 								},
 								{
 									"title":"Total spending",
@@ -438,6 +439,7 @@
 						{
 							"id":"get_customer_reservations",
 							"title":"All reservations",
+							"label":"Get reservations",
 							"type":"table",
 							"description":"",
 							"sql":"SELECT re.reservation_ID, dbo.FN_FORMAT_PRICE(dbo.FN_GET_RESERVATION_PRICE(re.reservation_ID)) AS totalPrice, re.checkin, re.checkout, re.guests, dbo.FN_STATUS_DETAILS(re.status) AS status, COALESCE(ho.hotelName, '') AS hotelName, ho.hotel_ID, COUNT(rr.roomNumber) AS reserved_rooms\nFROM view_reservation_[reservation] re\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON re.reservation_ID = rr.reservation_ID\nLEFT OUTER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nWHERE re.customer_ID = @customer_ID\nGROUP BY re.reservation_ID, re.checkin, re.checkout, re.guests, status, ho.hotelName, ho.hotel_ID\nORDER BY re.checkin ASC;",
@@ -505,6 +507,7 @@
 								{
 									"id":"get_reservation_additionalOptions",
 									"title":"Additional booking options",
+									"label":"Get booked options",
 									"type":"table",
 									"description":"",
 									"sql":"SELECT ra.reservation_ID, ao.additionalOptionTitle AS booking_option, ra.amount, dbo.FN_FORMAT_PRICE(ra.amount * ao.price) AS total_price\nFROM view_additionalOption_[additionalOption] ao\nINNER JOIN view_reservation_additionalOption_[reservation_additionalOption] ra ON ao.additionalOptionTitle = ra.additionalOptionTitle\n\tAND ao.hotel_ID = ra.hotel_ID\nWHERE ra.reservation_ID = @reservation_ID;",
@@ -561,6 +564,7 @@
 										{
 											"id":"change_reservation_additionalOption_amount",
 											"title":"Change amount",
+											"label":"Change booked amount",
 											"type":"void",
 											"description":"",
 											"sql":"UPDATE view_reservation_additionalOption_[reservation_additionalOption]\nSET amount = @amount\nWHERE reservation_ID = @reservation_ID\n\tAND hotel_ID = @hotel_ID\n\tAND additionalOptionTitle = @booking_option;",
@@ -602,6 +606,7 @@
 										{
 											"id":"remove_reservation_additionalOption",
 											"title":"Remove booking option",
+											"label":"Remove this option",
 											"type":"void",
 											"description":"",
 											"sql":"DELETE FROM view_reservation_additionalOption_[reservation_additionalOption]\nWHERE reservation_ID = @reservation_ID\n\tAND hotel_ID = @hotel_ID\n\tAND additionalOptionTitle = @booking_option;",
@@ -639,6 +644,7 @@
 						{
 							"id":"search_hotel",
 							"title":"Search hotel",
+							"label":"Search hotel",
 							"type":"table",
 							"description":"",
 							"sql":"SELECT ho.hotel_ID, ho.hotelName, ho.country, ho.city, ho.district, dbo.FN_FORMAT_PRICE(MIN(rc.price)) AS min_price\nFROM view_roomCategory_[roomCategory] rc\nINNER JOIN view_hotel_[hotel] ho ON rc.hotel_ID = ho.hotel_ID\nINNER JOIN dbo.FN_GET_AVAILABLE_ROOMS(@checkin, @checkout) ro ON ro.hotel_ID = ho.hotel_ID\nWHERE ho.city LIKE '%' + @hotel_city + '%'\n\tAND ho.district LIKE '%' + @hotel_district + '%'\nGROUP BY ho.hotel_ID, ho.hotelName, ho.country, ho.city, ho.district\nHAVING SUM(rc.maxGuests) >= @guests\nORDER BY min_price ASC;",
@@ -689,6 +695,7 @@
 								{
 									"id":"get_available_roomCategories",
 									"title":"Get available room categories",
+									"label":"Get available room categories",
 									"type":"table",
 									"description":"",
 									"sql":"WITH RoomCategoryEquipment AS (\n\tSELECT rc.roomCategory_ID, STRING_AGG(eq.equipmentTitle, ', ') AS equipment\n\tFROM view_equipment_[equipment] eq\n\tINNER JOIN view_roomCategory_equipment_[roomCategory_equipment] rce ON rce.equipment_ID = eq.equipment_ID\n\tINNER JOIN view_roomCategory_[roomCategory] rc ON rc.roomCategory_ID = rce.roomCategory_ID\n\tGROUP BY rc.roomCategory_ID\n)\nSELECT rc.roomCategory_ID, rc.categoryTitle, rc.maxGuests, dbo.FN_FORMAT_PRICE(rc.price) AS price, CONCAT(rc.[size], 'm²') AS [size], rce.equipment, COUNT(DISTINCT ro.roomNumber) AS available_rooms\nFROM view_roomCategory_[roomCategory] rc\nLEFT OUTER JOIN RoomCategoryEquipment rce ON rce.roomCategory_ID = rc.roomCategory_ID\nINNER JOIN dbo.FN_GET_AVAILABLE_ROOMS(@checkin, @checkout) ro ON ro.roomCategory_ID = rc.roomCategory_ID\nWHERE rc.hotel_ID = @hotel_ID\nGROUP BY rc.roomCategory_ID, rc.categoryTitle, rc.maxGuests, price, CONCAT(rc.[size], 'm²'), rce.equipment;",
@@ -795,6 +802,7 @@
 						{
 							"id":"delete_customer",
 							"title":"Delete profile",
+							"label":"Delete profile",
 							"type":"void",
 							"description":"",
 							"sql":"DELETE FROM view_customer_[customer]\nWHERE customer_ID = @customer_ID",
@@ -829,6 +837,7 @@
 				{
 					"id":"get_hotels",
 					"title":"All hotels",
+					"label":"Search hotel",
 					"type":"table",
 					"description":"Show data of hotels",
 					"sql":"SELECT ho.hotel_ID, ho.hotelName, ho.phoneNumber, ho.email, ad.country, ad.city, ad.district, ad.streetAddress\nFROM view_hotel_[hotel] ho\nINNER JOIN view_address_[address] ad ON ho.address_ID = ad.address_ID\nWHERE ho.hotel_ID LIKE '%' + @hotel_ID + '%'\n\tAND ho.hotelName LIKE '%' + @hotelName + '%'\n\tAND (\n\t\tad.country LIKE '%' + @country + '%'\n\t\t\tAND ad.city LIKE '%' + @city + '%'\n\t\t)\nORDER BY ho.hotel_ID ASC;",
@@ -1046,6 +1055,7 @@
 						{
 							"id":"get_roomCategories",
 							"title":"Room categories",
+							"label":"Get room categories",
 							"type":"table",
 							"description":"",
 							"sql":"SELECT rc.roomCategory_ID, rc.categoryTitle AS category, rc.maxGuests, dbo.FN_FORMAT_PRICE(rc.price) AS price, CONCAT(rc.[size], 'm²') AS [size], COUNT(DISTINCT ro.roomNumber) AS room_count\nFROM view_roomCategory_[roomCategory] rc\nLEFT OUTER JOIN view_room_[room] ro ON ro.roomCategory_ID = rc.roomCategory_ID\nWHERE rc.hotel_ID = @hotel_ID\nGROUP BY rc.roomCategory_ID, rc.categoryTitle, rc.maxGuests, price, CONCAT(rc.[size], 'm²');",
@@ -1110,6 +1120,7 @@
 								{
 									"id":"get_roomCategory_equipment",
 									"title":"Equipment",
+									"label":"Get equipment",
 									"type":"table",
 									"description":"",
 									"sql":"SELECT rce.roomCategory_ID, eq.equipment_ID, eq.equipmentTitle AS equipment, rce.amount\nFROM view_roomCategory_equipment_[roomCategory_equipment] rce\nINNER JOIN view_equipment_[equipment] eq ON eq.equipment_ID = rce.equipment_ID\nWHERE roomCategory_ID = @roomCategory_ID;",
@@ -1158,6 +1169,7 @@
 										{
 											"id":"update_roomCategory_equipment",
 											"title":"Change equipment amount",
+											"label":"Change equipment amount",
 											"type":"void",
 											"description":"",
 											"sql":"UPDATE view_roomCategory_equipment_[roomCategory_equipment]\nSET amount = @amount\nWHERE roomCategory_ID = @roomCategory_ID\n\tAND equipment_ID = @equipment_ID;",
@@ -1192,6 +1204,7 @@
 										{
 											"id":"remove_roomCategory_equipment",
 											"title":"Remove equipment",
+											"label":"Remove equipment",
 											"type":"void",
 											"description":"",
 											"sql":"DELETE FROM view_roomCategory_equipment_[roomCategory_equipment]\nWHERE roomCategory_ID = @roomCategory_ID\n\tAND equipment_ID = @equipment_ID;",
@@ -1220,6 +1233,7 @@
 								{
 									"id":"update_roomCategory",
 									"title":"Update room category",
+									"label":"Update room category",
 									"type":"void",
 									"description":"",
 									"sql":"UPDATE view_roomCategory_[roomCategory]\nSET categoryTitle = @category,\n\tmaxGuests = @maxGuests,\n\tprice = @price,\n\t[size] = @size\nWHERE roomCategory_ID = @roomCategory_ID;",
@@ -1270,6 +1284,7 @@
 								{
 									"id":"delete_roomCategory",
 									"title":"Delete room category",
+									"label":"Delete room category",
 									"type":"void",
 									"description":"",
 									"sql":"DELETE FROM view_roomCategory_[roomCategory]\nWHERE roomCategory_ID = @roomCategory_ID;",
@@ -1290,6 +1305,7 @@
 						{
 							"id":"get_rooms",
 							"title":"Rooms",
+							"label":"Get rooms",
 							"type":"table",
 							"description":"",
 							"sql":"SELECT ro.hotel_ID, ro.roomNumber, ro.floor, rc.categoryTitle AS category,\n\tCASE\n\t\tWHEN EXISTS (\n\t\t\tSELECT 1 \n\t\t\tFROM view_room_reservation_[room_reservation] rr\n\t\t\tINNER JOIN view_reservation_[reservation] re ON rr.reservation_ID = re.reservation_ID\n\t\t\tWHERE rr.hotel_ID = ro.hotel_ID \n\t\t\t\tAND rr.roomNumber = ro.roomNumber\n\t\t\t\tAND re.status IN ('R', 'P')\n\t\t\t\tAND GETDATE() BETWEEN re.checkin AND re.checkout\n\t\t\t) THEN 'Occupied'\n\t\tWHEN EXISTS (\n\t\t\tSELECT 1 \n\t\t\tFROM view_room_reservation_[room_reservation] rr\n\t\t\tINNER JOIN view_reservation_[reservation] re ON rr.reservation_ID = re.reservation_ID\n\t\t\tWHERE rr.hotel_ID = ro.hotel_ID AND rr.roomNumber = ro.roomNumber\n\t\t\t\tAND re.status IN ('R', 'P')\n\t\t\t\tAND re.checkin > GETDATE()\n\t\t\t) THEN 'Reserved'\n\t\tELSE 'Free'\n\tEND AS room_status\nFROM view_room_[room] ro\nLEFT OUTER JOIN view_roomCategory_[roomCategory] rc ON ro.roomCategory_ID = rc.roomCategory_ID\nWHERE ro.hotel_ID = @hotel_ID\nORDER BY ro.floor, ro.roomNumber;",
@@ -1346,6 +1362,7 @@
 								{
 									"id":"update_room",
 									"title":"Update room",
+									"label":"Update room",
 									"type":"void",
 									"description":"",
 									"sql":"UPDATE view_room_[room]\nSET roomNumber = @newRoomNumber,\n\t[floor] = @floor,\n\troomCategory_ID = @roomCategory_selection\nWHERE hotel_ID = @hotel_ID\n\tAND roomNumber = @roomNumber;",
@@ -1396,6 +1413,7 @@
 								{
 									"id":"delete_room",
 									"title":"Delete room",
+									"label":"Delete room",
 									"type":"void",
 									"description":"",
 									"sql":"DELETE FROM view_room_[room]\nWHERE hotel_ID = @hotel_ID\n\tAND roomNumber = @roomNumber;",
@@ -1424,6 +1442,7 @@
 						{
 							"id":"get_additionalOptions",
 							"title":"Booking options",
+							"label":"Get additional options",
 							"type":"table",
 							"description":"",
 							"sql":"SELECT hotel_ID, additionalOptionTitle AS title, dbo.FN_FORMAT_PRICE(price) AS price\nFROM view_additionalOption_[additionalOption]\nWHERE hotel_ID = @hotel_ID;",
@@ -1472,6 +1491,7 @@
 								{
 									"id":"update_additionalOption",
 									"title":"Update booking option",
+									"label":"Update additional option",
 									"type":"void",
 									"description":"",
 									"sql":"UPDATE view_additionalOption_[additionalOption]\nSET additionalOptionTitle = @newTitle,\n\tprice = @price\nWHERE hotel_ID = @hotel_ID\n\tAND additionalOptionTitle = @title;",
@@ -1514,6 +1534,7 @@
 								{
 									"id":"delete_additionalOption",
 									"title":"Delete booking option",
+									"label":"Delete additional option",
 									"type":"void",
 									"description":"",
 									"sql":"DELETE FROM view_additionalOption_[additionalOption]\nWHERE additionalOptionTitle = @title\n\tAND hotel_ID = @hotel_ID;",
@@ -1542,6 +1563,7 @@
 						{
 							"id":"get_reservations",
 							"title":"Reservations",
+							"label":"Get reservations",
 							"type":"table",
 							"description":"",
 							"sql":"SELECT DISTINCT re.reservation_ID, dbo.FN_FORMAT_PRICE(dbo.FN_GET_RESERVATION_PRICE(re.reservation_ID)) AS totalPrice, re.checkin, re.checkout, re.guests, dbo.FN_STATUS_DETAILS(re.[status]) AS [status], dbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS fullName, cu.phoneNumber, cu.email,\n\tCASE\n\t\tWHEN re.checkin > GETDATE() THEN 'Upcoming'\n\t\tWHEN re.checkout > GETDATE() THEN 'Current'\n\t\tWHEN re.checkout < GETDATE() THEN 'Prior'\n\t\tELSE 'Invalid'\n\tEND AS reservation_category\nFROM view_reservation_[reservation] re\nINNER JOIN view_room_reservation_[room_reservation] rr ON rr.reservation_ID = re.reservation_ID\nINNER JOIN view_customer_[customer] cu ON cu.customer_ID = re.customer_ID\nWHERE rr.hotel_ID = @hotel_ID\nORDER BY re.checkout DESC;",
@@ -1560,6 +1582,7 @@
 								{
 									"id":"create_print_invoice",
 									"title":"Create / Print invoice",
+									"label":"Print invoice",
 									"type":"table",
 									"description":"",
 									"sql":"SELECT DISTINCT iv.reservation_ID AS invoice_ID,\n\tdbo.FN_FORMAT_PRICE(iv.totalPrice) AS totalPrice,\n\tiv.invoiceDate,\n\tdbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS fullName,\n\ta1.streetAddress AS customerStreetAddress,\n\ta1.city AS customerCity,\n\ta1.country AS customerCountry,\n\tho.hotelName,\n\ta2.streetAddress AS hotelStreetAddress,\n\ta2.city AS hotelCity,\n\ta2.country AS hotelCountry\nFROM view_invoice_[invoice] iv\nINNER JOIN view_reservation_[reservation] re ON iv.reservation_ID = re.reservation_ID\nINNER JOIN view_customer_[customer] cu ON re.customer_ID = cu.customer_ID\nINNER JOIN view_address_[address] a1 ON iv.address_ID = a1.address_ID\nINNER JOIN view_room_reservation_[room_reservation] rr ON re.reservation_ID = rr.reservation_ID\nINNER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nINNER JOIN view_address_[address] a2 ON ho.address_ID = a2.address_ID\nWHERE iv.reservation_ID = @reservation_ID;",
@@ -1592,6 +1615,7 @@
 								{
 									"id":"delete_invoice",
 									"title":"Remove invoice",
+									"label":"Remove invoice",
 									"type":"void",
 									"description":"",
 									"sql":"DELETE FROM view_invoice_[invoice] WHERE reservation_ID = @reservation_ID",
@@ -1610,6 +1634,7 @@
 								{
 									"id":"cancel_reservation_hotel_staff",
 									"title":"Cancel reservation",
+									"label":"Cancel reservation",
 									"type":"void",
 									"description":"",
 									"sql":"UPDATE view_reservation_[reservation]\nSET status = 'C'\nWHERE reservation_ID = @reservation_ID\n\tAND status = 'R'",
@@ -1630,6 +1655,7 @@
 						{
     						"id": "room_booking_rank",
     						"title": "Statistics: Room Category Booking Rank",
+    						"label":"Load room category booking ranking",
     						"type": "table",
     						"description": "",
     						"sql": "SELECT rc.roomCategory_ID, rc.categoryTitle AS category, dbo.FN_FORMAT_PRICE(rc.price) AS price,\n\tCOUNT(rr.reservation_ID) AS total_bookings,\n\tRANK() OVER (ORDER BY COUNT(rr.reservation_ID) DESC) AS booking_rank\nFROM view_roomCategory_[roomCategory] rc\nLEFT OUTER JOIN view_room_[room] ro ON ro.roomCategory_ID = rc.roomCategory_ID\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON rr.hotel_ID = ro.hotel_ID\n\tAND rr.roomNumber = ro.roomNumber\nWHERE rc.hotel_ID = @hotel_ID\nGROUP BY rc.roomCategory_ID, rc.categoryTitle, rc.price\nORDER BY booking_rank ASC;",
@@ -1648,6 +1674,7 @@
 						{
     						"id": "peak_checkin_days",
     						"title": "Statistics: Peak Check-In Days",
+    						"label":"Load check-in day popularity",
     						"type": "table",
     						"description": "",
     						"sql": "WITH AllWeekdays AS (\n\tSELECT 1 AS day_number, 'Monday' AS weekday\n\tUNION ALL SELECT 2, 'Tuesday'\n\tUNION ALL SELECT 3, 'Wednesday'\n\tUNION ALL SELECT 4, 'Thursday'\n\tUNION ALL SELECT 5, 'Friday'\n\tUNION ALL SELECT 6, 'Saturday'\n\tUNION ALL SELECT 7, 'Sunday'\n), HotelReservations AS (\n\tSELECT re.reservation_ID, DATENAME(weekday, re.checkin) AS weekday\n\tFROM view_reservation_[reservation] re\n\tINNER JOIN view_room_reservation_[room_reservation] rr ON rr.reservation_ID = re.reservation_ID\n\tWHERE rr.hotel_ID = @hotel_ID\n)\nSELECT aw.weekday, COUNT(DISTINCT hr.reservation_ID) AS total_reservations,\n\tRANK() OVER (ORDER BY COUNT(DISTINCT hr.reservation_ID) DESC) AS checkin_popularity_rank\nFROM AllWeekdays aw\nLEFT OUTER JOIN HotelReservations hr ON aw.weekday = hr.weekday\nGROUP BY aw.weekday;",
@@ -1666,6 +1693,7 @@
 						{
 							"id":"delete_hotel",
 							"title":"Delete hotel",
+							"label":"Delete hotel",
 							"type":"void",
 							"description":"",
 							"sql":"DELETE FROM view_hotel_[hotel]\nWHERE hotel_ID = @hotel_ID;",

@@ -2,6 +2,7 @@ const dotenv = require('@dotenvx/dotenvx');
 dotenv.config();
 
 const express = require("express");
+var favicon = require('serve-favicon');
 const sql = require("mssql");
 const session = require("express-session");
 const path = require("path");
@@ -15,6 +16,7 @@ const SQL_COMMANDS = require("./sql-commands.json");
 // ─── Middleware ────────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "frontend")));
+app.use(favicon(path.join(__dirname, "frontend", "favicon.ico"))); 
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET,

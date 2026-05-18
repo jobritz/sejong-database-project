@@ -289,8 +289,8 @@ html, body {
 }
 
 .topbar-brand-icon {
-	font-size: 20px;
-	color: var(--gold);
+	max-width: 20px;
+	max-height: 20px;
 }
 
 .topbar-logo {
