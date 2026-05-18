@@ -50,11 +50,15 @@ The Express server acts as a proxy: it authenticates users against the database 
 
 ## Installation
 
+Web-App installation:
+
 ```bash
 git clone <repo-url>
 cd project
 npm install
 ```
+
+Run the `DB_Setup.sql` in your MSSQL Server. Important: Replace the passwords of the demo logins!
 
 Dependencies used:
 
@@ -82,8 +86,6 @@ DB_TRUST_CERT=true
 # Session
 SESSION_SECRET=replace-with-a-long-random-string
 ```
-
-> **Never commit `.env` to source control.**
 
 ---
 
