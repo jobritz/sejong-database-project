@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
     
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const SQL_FILE  = resolve(__dirname, 'queries.sql');
+const SQL_FILE  = resolve(__dirname, 'sql/queries.sql');
 const JSON_FILE = resolve(__dirname, 'sql-commands.json');
 
 // Parse queries.sql

@@ -58,7 +58,7 @@ cd project
 npm install
 ```
 
-Run the `DB_Setup.sql` in your MSSQL Server. Important: Replace the passwords of the demo logins!
+Run the `sql/DB_Setup.sql` in your MSSQL Server. Important: Replace the passwords of the demo logins!
 
 Dependencies used:
 
@@ -106,10 +106,11 @@ project/
 ├── server.js               # Express application & API routes
 ├── load-sql.js             # SQL loader: parses queries.sql and hydrates sql-commands.json
 ├── sql-commands.json       # UI metadata and query structure (@key references, no raw SQL)
-├── queries.sql             # All SQL query definitions, one -- @key section per query
 ├── migrate-sql.js          # One-time migration tool (see SQL Command Registry)
 ├── package.json
 ├── .env                    # Environment variables (not committed)
+├── sql/
+│   └── queries.sql         # All SQL query definitions, one -- @key section per query
 └── frontend/
     ├── index.html          # Vue 3 SPA shell
     ├── style.css           # Design system & component styles
