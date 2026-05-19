@@ -186,24 +186,6 @@ The loader handles all four locations where SQL appears: `sql` (string or KPI ar
 
 **Adding a new command** — add a `-- @new_key` section to `queries.sql`, add the command object to `sql-commands.json` with `"sql": "@new_key"`, then restart.
 
-#### Migration tool
-
-`migrate-sql.js` was used to perform the initial extraction and should not need to be run again. It is kept in the repository for reference. If you need to re-run it (e.g. after reverting to inline SQL):
-
-```bash
-node migrate-sql.js
-```
-
-This reads `sql-commands.json`, extracts every SQL string into `queries.sql`, and rewrites the JSON with `@key` references in place of raw SQL. Keys are namespaced by category and command id (e.g. `system_management_running_total_reservations_sql`).
-
-| Field | Purpose |
-|---|---|
-| `type` | `table` renders a result grid; `kpi` renders metric tiles; `void` shows only row-count feedback |
-| `params` | List of input fields rendered in the UI |
-| `runOnSelect` | If `true`, the query executes automatically when selected |
-| `subSql` | Child queries unlocked by clicking a result row (drill-down) |
-| `insert` | Optional secondary form for INSERT/EXEC operations shown below the result grid |
-
 ### Frontend Navigation
 
 The Vue app maintains a `navStack` array. Clicking a result row pushes the current state (commands list, query, param values) and replaces the sidebar with `subSql` entries. The **Back** button pops the stack and restores the previous state.
