@@ -160,7 +160,7 @@
 
                         <!-- INSERT FORM -->
                         <div class="panel" v-if="currentQuery.insert">
-                            <div class="panel-header panel-header-toggle" @click="currentQuery._showInsertSql = !currentQuery._showInsertSql">
+                            <div class="panel-header">
                                 <div class="panel-header-left">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="12" y1="5" x2="12" y2="19" />
@@ -168,7 +168,7 @@
                                     </svg>
                                     <span class="panel-title">{{ currentQuery.insert.title ? currentQuery.insert.title : 'Add New Record' }}</span>
                                 </div>
-                                <button class="btn-toggle-sql">
+                                <button class="btn-toggle-sql" @click="currentQuery._showInsertSql = !currentQuery._showInsertSql">
                                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" :style="{ transform: currentQuery._showSql ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }">
                                         <path d="M3 6l5 5 5-5" />
                                     </svg>
@@ -204,7 +204,7 @@
 
                         <!-- MAIN QUERY -->
                         <div class="panel" v-if="currentQuery.type === 'table' || currentQuery.type === 'void'">
-                            <div class="panel-header panel-header-toggle" @click="currentQuery._showSql = !currentQuery._showSql">
+                            <div class="panel-header">
                                 <div class="panel-header-left">
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <ellipse cx="12" cy="5" rx="9" ry="3" />
@@ -213,7 +213,7 @@
                                     </svg>
                                     <span class="panel-title">{{ currentQuery.label ? currentQuery.label : 'SQL Query' }}</span>
                                 </div>
-                                <button class="btn-toggle-sql">
+                                <button class="btn-toggle-sql" @click="currentQuery._showSql = !currentQuery._showSql">
                                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" :style="{ transform: currentQuery._showSql ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }">
                                         <path d="M3 6l5 5 5-5" />
                                     </svg>

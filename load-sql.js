@@ -3,30 +3,25 @@
  *
  * Parses queries.sql and hydrates sql-commands.json at server startup.
  *
- * queries.sql format:
- *   -- @some_key
- *   SELECT ...
- *
- *   -- @another_key
- *   UPDATE ...
- *
- * Usage in server.js:
- *   const SQL_COMMANDS = require('./load-sql')();
  */
 
-const fs   = require('fs');
-const path = require('path');
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 
-const SQL_FILE  = path.resolve(__dirname, 'queries.sql');
-const JSON_FILE = path.resolve(__dirname, 'sql-commands.json');
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+    
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-/** Parse queries.sql → { key: sqlString } */
+const SQL_FILE  = resolve(__dirname, 'queries.sql');
+const JSON_FILE = resolve(__dirname, 'sql-commands.json');
+
+// Parse queries.sql
 function parseSqlFile(filepath) {
-    const content = fs.readFileSync(filepath, 'utf8');
+    const content = readFileSync(filepath, 'utf8');
     const map = {};
-    // Split on lines that look like "-- @key"
+    // Split on lines that look like '-- @key'
     const sections = content.split(/^-- @(\S+)\s*$/m);
-    // sections[0] = preamble (empty), then alternating: key, body, key, body ...
     for (let i = 1; i < sections.length; i += 2) {
         const key  = sections[i].trim();
         const body = (sections[i + 1] ?? '').trim();
@@ -35,7 +30,7 @@ function parseSqlFile(filepath) {
     return map;
 }
 
-/** Recursively replace every "@key" string in obj using sqlMap. */
+// Recursively replace every '@key' string in obj using sqlMap
 function hydrate(obj, sqlMap) {
     if (typeof obj === 'string') {
         if (obj.startsWith('@')) {
@@ -57,8 +52,8 @@ function hydrate(obj, sqlMap) {
     return obj;
 }
 
-module.exports = function loadSqlCommands() {
+export default function loadSqlCommands() {
     const sqlMap = parseSqlFile(SQL_FILE);
-    const raw    = JSON.parse(fs.readFileSync(JSON_FILE, 'utf8'));
+    const raw = JSON.parse(readFileSync(JSON_FILE, 'utf8'));
     return hydrate(raw, sqlMap);
 };

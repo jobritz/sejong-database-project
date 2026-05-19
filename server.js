@@ -1,22 +1,33 @@
-const dotenv = require('@dotenvx/dotenvx');
-dotenv.config();
+/**
+ * server.js
+ *
+ * Setup and API endpoints of the express.js server
+ *
+ */
 
-const express = require("express");
-const favicon = require('serve-favicon');
-const sql = require("mssql");
-const session = require("express-session");
-const path = require("path");
+import { config as _config } from '@dotenvx/dotenvx';
+_config();
+
+import express, { json, static as _static } from 'express';
+import favicon from 'serve-favicon';
+import pkg from 'mssql';
+const { ConnectionPool, NVarChar } = pkg;
+import session from 'express-session';
+import { join } from 'path';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
+import loadSqlCommands from './load-sql.js';
 
 const app = express();
 
 const PORT = process.env.PORT;
-//const SQL_COMMANDS = require("./sql-commands.json");
-const SQL_COMMANDS = require("./load-sql")();
+const SQL_COMMANDS = loadSqlCommands();
 
 // App setup
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "frontend")));
-app.use(favicon(path.join(__dirname, "frontend", "favicon.ico"))); 
+app.use(json());
+app.use(_static(join(__dirname, 'frontend')));
+app.use(favicon(join(__dirname, 'frontend', 'favicon.ico'))); 
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET,
@@ -50,14 +61,14 @@ function getConfig(body) {
 }
 
 // Login
-app.post("/api/auth/login", async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
 	const { username, password } = req.body;
 	if (!username || !password) {
-		return res.status(400).json({ error: "Username and password are required." });
+		return res.status(400).json({ error: 'Username and password are required.' });
 	}
 	try {
 		const config = getConfig(req.body);
-		const pool = new sql.ConnectionPool(config);
+		const pool = new ConnectionPool(config);
 		await pool.connect();
 
 		if (connections[req.session.id]) {
@@ -84,7 +95,7 @@ app.post("/api/auth/login", async (req, res) => {
 });
 
 // Logout
-app.post("/api/auth/logout", async (req, res) => {
+app.post('/api/auth/logout', async (req, res) => {
 	if (connections[req.session.id]) {
 		try { await connections[req.session.id].close(); } catch (_) {}
 		delete connections[req.session.id];
@@ -94,7 +105,7 @@ app.post("/api/auth/logout", async (req, res) => {
 });
 
 // Authentication status
-app.get("/api/auth/status", (req, res) => {
+app.get('/api/auth/status', (req, res) => {
 	if (req.session.user && connections[req.session.id]) {
 		res.json({ loggedIn: true, user: req.session.user });
 	} else {
@@ -105,16 +116,16 @@ app.get("/api/auth/status", (req, res) => {
 // Authentication guard 
 function requireAuth(req, res, next) {
 	if (!req.session.user || !connections[req.session.id]) {
-		return res.status(401).json({ error: "Not authenticated. Please log in first." });
+		return res.status(401).json({ error: 'Not authenticated. Please log in first.' });
 	}
 	next();
 }
 
 // SQL Execute Endpoint
-app.post("/api/sql/execute", requireAuth, async (req, res) => {
+app.post('/api/sql/execute', requireAuth, async (req, res) => {
 	const { query } = req.body;
 	const params = req.body.params ?? {};
-	if (!query) return res.status(400).json({ error: "No query provided." });
+	if (!query) return res.status(400).json({ error: 'No query provided.' });
 
 	const pool = connections[req.session.id];
 	try {
@@ -122,7 +133,7 @@ app.post("/api/sql/execute", requireAuth, async (req, res) => {
 
 		for (const [key, value] of Object.entries(params)) {
 			if (value === null || value === undefined) continue;
-			request.input(key, sql.NVarChar, String(value));
+			request.input(key, NVarChar, String(value));
 		}
 
 		const startTime = Date.now();
@@ -142,7 +153,7 @@ app.post("/api/sql/execute", requireAuth, async (req, res) => {
 });
 
 // Load SQL commands
-app.get("/api/categories", (req, res) => {
+app.get('/api/categories', (req, res) => {
 	res.json(SQL_COMMANDS);
 });
 

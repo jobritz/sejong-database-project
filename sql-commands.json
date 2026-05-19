@@ -1372,7 +1372,7 @@
 										{
 											"name": "newRoomNumber",
 											"label": "new room number",
-											"type": "number",
+											"type": "text",
 											"placeholder": "",
 											"required": true,
 											"readonly": false
