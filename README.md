@@ -104,13 +104,16 @@ Then open `http://localhost:3000` in your browser.
 ```
 project/
 ├── server.js               # Express application & API routes
-├── sql-commands.json       # All SQL query definitions and UI metadata
+├── load-sql.js             # SQL loader: parses queries.sql and hydrates sql-commands.json
+├── sql-commands.json       # UI metadata and query structure (@key references, no raw SQL)
+├── queries.sql             # All SQL query definitions, one -- @key section per query
+├── migrate-sql.js          # One-time migration tool (see SQL Command Registry)
 ├── package.json
 ├── .env                    # Environment variables (not committed)
 └── frontend/
-	├── index.html          # Vue 3 SPA shell
-	├── style.css           # Design system & component styles
-	└── script.js           # Vue 3 application logic
+    ├── index.html          # Vue 3 SPA shell
+    ├── style.css           # Design system & component styles
+    └── script.js           # Vue 3 application logic
 ```
 
 ---
@@ -142,7 +145,55 @@ The role (`system_admin`, `hotel_staff`, or `customer`) drives two things:
 
 ### SQL Command Registry
 
-`sql-commands.json` contains the full definition of every available operation:
+SQL queries are stored in `queries.sql` and loaded at server startup by `load-sql.js`. The `sql-commands.json` file holds only UI metadata and structure; every SQL string is replaced with a `@key` reference that the loader resolves back to the full query at boot time.
+
+`queries.sql` uses `-- @key` section headers to delimit individual queries:
+
+```sql
+-- @system_management_system_overview_kpi_0
+SELECT COUNT(*) AS number_of_customers
+FROM view_customer_[customer];
+
+-- @customer_management_get_customers_sql
+SELECT cu.customer_ID, cu.firstName ...
+FROM view_customer_[customer] cu
+...
+```
+
+`sql-commands.json` references these with `@key` strings in place of raw SQL:
+
+```json
+{
+  "id": "get_customers",
+  "sql": "@customer_management_get_customers_sql",
+  "insert": {
+    "sql": "@customer_management_get_customers_insert"
+  }
+}
+```
+
+`load-sql.js` is required in `server.js` instead of the JSON directly:
+
+```js
+// server.js
+const SQL_COMMANDS = require("./load-sql")();
+```
+
+The loader handles all four locations where SQL appears: `sql` (string or KPI array of `{title, sql}` objects), `insert.sql`, and `params[].options` for select-type inputs. It warns to the console if a `@key` reference has no matching section in `queries.sql`.
+
+**Adding or editing a query** — edit the relevant `-- @key` section in `queries.sql` and restart the server. The JSON does not need to change unless the query's parameters or UI behaviour change.
+
+**Adding a new command** — add a `-- @new_key` section to `queries.sql`, add the command object to `sql-commands.json` with `"sql": "@new_key"`, then restart.
+
+#### Migration tool
+
+`migrate-sql.js` was used to perform the initial extraction and should not need to be run again. It is kept in the repository for reference. If you need to re-run it (e.g. after reverting to inline SQL):
+
+```bash
+node migrate-sql.js
+```
+
+This reads `sql-commands.json`, extracts every SQL string into `queries.sql`, and rewrites the JSON with `@key` references in place of raw SQL. Keys are namespaced by category and command id (e.g. `system_management_running_total_reservations_sql`).
 
 | Field | Purpose |
 |---|---|
@@ -166,7 +217,7 @@ The Vue app maintains a `navStack` array. Clicking a result row pushes the curre
 | `POST` | `/api/auth/logout` | No | Close the DB connection and destroy the session |
 | `GET` | `/api/auth/status` | No | Return current session state |
 | `POST` | `/api/sql/execute` | Yes | Execute a parameterised SQL query |
-| `GET` | `/api/categories` | No | Return the full `sql-commands.json` payload |
+| `GET` | `/api/categories` | No | Return the full hydrated `sql-commands.json` payload |
 
 **`POST /api/sql/execute` body:**
 
@@ -177,13 +228,13 @@ The Vue app maintains a `navStack` array. Clicking a result row pushes the curre
 }
 ```
 
-All parameters are bound as `NVARCHAR` to prevent SQL injection. The query string itself is sent from the client-controlled `sql-commands.json`; ensure that file is not user-editable in production.
+All parameters are bound as `NVARCHAR` to prevent SQL injection. The query string itself originates from `queries.sql` (loaded server-side at startup); ensure that file is not user-editable in production.
 
 ---
 
 ## Security Notes
 
-- **SQL injection** — all user-supplied values are bound as named parameters via `mssql`'s `request.input()`. The query *template* comes from the server-side `sql-commands.json`, not from user input.
+- **SQL injection** — all user-supplied values are bound as named parameters via `mssql`'s `request.input()`. The query *template* comes from `queries.sql`, loaded server-side at startup, not from user input.
 - **Row-level security** — enforced through database views; the Node server only selects the correct view name, it does not filter rows itself.
 - **Session secret** — must be set in `.env`; do not use the default placeholder in production.
 - **`cookie.secure`** — set to `true` when running behind HTTPS in production.

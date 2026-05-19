@@ -2,797 +2,783 @@
 	"viewplaceholders": {
 		"system_admin": [
 			{
-				"tablename":"customer",
-				"base":"role"
+				"tablename": "customer",
+				"base": "role"
 			},
 			{
-				"tablename":"hotel",
-				"base":"role"
+				"tablename": "hotel",
+				"base": "role"
 			},
 			{
-				"tablename":"reservation",
-				"base":"role"
-			},
-{
-				"tablename":"room_reservation",
-				"base":"role"
+				"tablename": "reservation",
+				"base": "role"
 			},
 			{
-				"tablename":"roomCategory",
-				"base":"role"
+				"tablename": "room_reservation",
+				"base": "role"
 			},
 			{
-				"tablename":"equipment",
-				"base":"role"
+				"tablename": "roomCategory",
+				"base": "role"
 			},
 			{
-				"tablename":"roomCategory_equipment",
-				"base":"role"
+				"tablename": "equipment",
+				"base": "role"
 			},
 			{
-				"tablename":"additionalOption",
-				"base":"role"
+				"tablename": "roomCategory_equipment",
+				"base": "role"
 			},
 			{
-				"tablename":"reservation_additionalOption",
-				"base":"role"
+				"tablename": "additionalOption",
+				"base": "role"
 			},
 			{
-				"tablename":"invoice",
-				"base":"role"
+				"tablename": "reservation_additionalOption",
+				"base": "role"
 			},
 			{
-				"tablename":"address",
-				"base":"role"
+				"tablename": "invoice",
+				"base": "role"
 			},
 			{
-				"tablename":"room",
-				"base":"role"
+				"tablename": "address",
+				"base": "role"
+			},
+			{
+				"tablename": "room",
+				"base": "role"
 			}
 		],
 		"customer": [
 			{
-				"tablename":"customer",
-				"base":"user"
+				"tablename": "customer",
+				"base": "user"
 			},
 			{
-				"tablename":"hotel",
-				"base":"role"
+				"tablename": "hotel",
+				"base": "role"
 			},
 			{
-				"tablename":"reservation",
-				"base":"user"
-			},
-{
-				"tablename":"room_reservation",
-				"base":"user"
+				"tablename": "reservation",
+				"base": "user"
 			},
 			{
-				"tablename":"roomCategory",
-				"base":"role"
+				"tablename": "room_reservation",
+				"base": "user"
 			},
 			{
-				"tablename":"equipment",
-				"base":"role"
+				"tablename": "roomCategory",
+				"base": "role"
 			},
 			{
-				"tablename":"roomCategory_equipment",
-				"base":"role"
+				"tablename": "equipment",
+				"base": "role"
 			},
 			{
-				"tablename":"additionalOption",
-				"base":"role"
+				"tablename": "roomCategory_equipment",
+				"base": "role"
 			},
 			{
-				"tablename":"reservation_additionalOption",
-				"base":"user"
+				"tablename": "additionalOption",
+				"base": "role"
 			},
 			{
-				"tablename":"invoice",
-				"base":"user"
+				"tablename": "reservation_additionalOption",
+				"base": "user"
 			},
 			{
-				"tablename":"address",
-				"base":"user"
+				"tablename": "invoice",
+				"base": "user"
 			},
 			{
-				"tablename":"room",
-				"base":"role"
-			}		
+				"tablename": "address",
+				"base": "user"
+			},
+			{
+				"tablename": "room",
+				"base": "role"
+			}
 		],
 		"hotel_staff": [
 			{
-				"tablename":"customer",
-				"base":"user"
+				"tablename": "customer",
+				"base": "user"
 			},
 			{
-				"tablename":"hotel",
-				"base":"user"
+				"tablename": "hotel",
+				"base": "user"
 			},
 			{
-				"tablename":"reservation",
-				"base":"user"
-			},
-{
-				"tablename":"room_reservation",
-				"base":"user"
+				"tablename": "reservation",
+				"base": "user"
 			},
 			{
-				"tablename":"roomCategory",
-				"base":"user"
+				"tablename": "room_reservation",
+				"base": "user"
 			},
 			{
-				"tablename":"equipment",
-				"base":"role"
+				"tablename": "roomCategory",
+				"base": "user"
 			},
 			{
-				"tablename":"roomCategory_equipment",
-				"base":"user"
+				"tablename": "equipment",
+				"base": "role"
 			},
 			{
-				"tablename":"additionalOption",
-				"base":"user"
+				"tablename": "roomCategory_equipment",
+				"base": "user"
 			},
 			{
-				"tablename":"reservation_additionalOption",
-				"base":"user"
+				"tablename": "additionalOption",
+				"base": "user"
 			},
 			{
-				"tablename":"invoice",
-				"base":"user"
+				"tablename": "reservation_additionalOption",
+				"base": "user"
 			},
 			{
-				"tablename":"address",
-				"base":"user"
+				"tablename": "invoice",
+				"base": "user"
 			},
 			{
-				"tablename":"room",
-				"base":"user"
-			}		
+				"tablename": "address",
+				"base": "user"
+			},
+			{
+				"tablename": "room",
+				"base": "user"
+			}
 		]
 	},
 	"categories": [
 		{
-			"id":"system_management",
-			"visibility":[
+			"id": "system_management",
+			"visibility": [
 				"system_admin"
 			],
-			"icon":"⚙",
-			"title":"System management",
-			"type":"category",
-			"description":"",
-			"color":"#a855f7",
-			"commands":[
+			"icon": "⚙",
+			"title": "System management",
+			"type": "category",
+			"description": "",
+			"color": "#a855f7",
+			"commands": [
 				{
-					"id":"system_overview",
-					"title":"System Overview",
-					"type":"kpi",
-					"description":"Overview of system KPIs",
-					"sql":[
+					"id": "system_overview",
+					"title": "System Overview",
+					"type": "kpi",
+					"description": "Overview of system KPIs",
+					"sql": [
 						{
-							"title":"Customers",
-							"sql":"SELECT COUNT(*) AS number_of_customers\nFROM view_customer_[customer];"
+							"title": "Customers",
+							"sql": "@system_management_system_overview_kpi_0"
 						},
 						{
-							"title":"Hotels",
-							"sql":"SELECT COUNT(*) AS number_of_hotels\nFROM view_hotel_[hotel];"
+							"title": "Hotels",
+							"sql": "@system_management_system_overview_kpi_1"
 						},
 						{
-							"title":"Active reservations",
-							"sql":"SELECT COUNT(*) AS active_reservations\nFROM view_reservation_[reservation]\nWHERE checkout >= GETDATE();"
+							"title": "Active reservations",
+							"sql": "@system_management_system_overview_kpi_2"
 						}
 					],
-					"params":[
-						
-					],
-					"runOnSelect":true
+					"params": [],
+					"runOnSelect": true
 				},
 				{
-					"id":"running_total_reservations",
-					"title":"Reservation increase",
-					"type":"table",
-					"description":"Monthly increase of reservations",
-					"sql":"WITH ReservationMonthYear AS (\n\tSELECT reservation_ID, MONTH(checkin) AS month_num, YEAR(checkin) AS [year], DATENAME(month , checkin) AS [month]\n\tFROM view_reservation_[reservation]\n)\nSELECT [year], [month], COUNT(reservation_ID) AS monthly_reservations, \n\tSUM(COUNT(reservation_ID)) OVER(ORDER BY [year], month_num ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS total_reservations\nFROM ReservationMonthYear\nGROUP BY [year], [month], month_num\nORDER BY [year] DESC, month_num DESC;",
-					"params":[
-						
-					],
-					"runOnSelect":true
+					"id": "running_total_reservations",
+					"title": "Reservation increase",
+					"type": "table",
+					"description": "Monthly increase of reservations",
+					"sql": "@system_management_running_total_reservations_sql",
+					"params": [],
+					"runOnSelect": true
 				},
 				{
-					"id":"contact_information",
-					"title":"All contacts",
-					"type":"table",
-					"description":"Get all contact information in the system",
-					"sql":"SELECT cu.customer_ID AS ID, CONCAT(cu.firstName,' ',cu.lastName) AS [name], cu.phoneNumber AS phoneNumber, cu.email AS email, ad.country, ad.district, ad.streetAddress \nFROM view_customer_[customer] cu \nINNER JOIN view_address_[address] ad ON cu.address_ID = ad.address_ID\nUNION (\n\tSELECT ho.hotel_ID AS ID, ho.hotelName AS [name], ho.phoneNumber AS phoneNumber, ho.email AS email, ad.country, ad.district, ad.streetAddress \n\tFROM view_hotel_[hotel] ho \n\tINNER JOIN view_address_[address] ad ON ho.address_ID = ad.address_ID\n)\nORDER BY [name] ASC;",
-					"params":[
-						
-					],
-					"runOnSelect":true
+					"id": "contact_information",
+					"title": "All contacts",
+					"type": "table",
+					"description": "Get all contact information in the system",
+					"sql": "@system_management_contact_information_sql",
+					"params": [],
+					"runOnSelect": true
 				},
 				{
-    				"id": "hotel_revenue_reservation_rank",
-    				"title": "Hotel Revenue and Reservation Ranking",
-    				"type": "table",
-    				"description": "Ranking of all hotels by total revenue and by total reservation count",
-    				"sql": "WITH ReservationCounts AS (\n\tSELECT ho.hotel_ID, COUNT(DISTINCT re.reservation_ID) AS total_reservations\n\tFROM view_hotel_[hotel] ho\n\tINNER JOIN view_room_[room] ro ON ho.hotel_ID = ro.hotel_ID\n\tINNER JOIN view_room_reservation_[room_reservation] rr ON ro.hotel_ID = rr.hotel_ID\n\t\tAND ro.roomNumber = rr.roomNumber\n\tINNER JOIN view_reservation_[reservation] re ON rr.reservation_ID = re.reservation_ID\n\tGROUP BY ho.hotel_ID\n)\nSELECT ho.hotelName,\n\tdbo.FN_FORMAT_PRICE(SUM(iv.totalPrice)) AS total_revenue,\n\tDENSE_RANK() OVER(ORDER BY SUM(iv.totalPrice) DESC) AS revenue_rank,\n\trc.total_reservations,\n\tDENSE_RANK() OVER(ORDER BY rc.total_reservations DESC) AS reservations_rank\nFROM ReservationCounts rc\nLEFT OUTER JOIN view_hotel_[hotel] ho ON rc.hotel_ID = ho.hotel_ID\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON rr.hotel_ID = ho.hotel_ID\nLEFT OUTER JOIN view_reservation_[reservation] re ON re.reservation_ID = rr.reservation_ID\nLEFT OUTER JOIN view_invoice_[invoice] iv ON iv.reservation_ID = re.reservation_ID\nGROUP BY ho.hotelName, rc.total_reservations\nORDER BY revenue_rank;",
-    				"params": [
-    				
-    				],
-    				"runOnSelect": true
+					"id": "hotel_revenue_reservation_rank",
+					"title": "Hotel Revenue and Reservation Ranking",
+					"type": "table",
+					"description": "Ranking of all hotels by total revenue and by total reservation count",
+					"sql": "@system_management_hotel_revenue_reservation_rank_sql",
+					"params": [],
+					"runOnSelect": true
 				},
 				{
-    				"id": "customer_spending_rank",
-    				"title": "Customer Spending Ranking",
-    				"type": "table",
-    				"description": "All customers ranked by total invoice spending",
-    				"sql": "SELECT cu.customer_ID,\n\tdbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS full_name,\n\tCOUNT(DISTINCT re.reservation_ID) AS total_reservations,\n\tdbo.FN_FORMAT_PRICE(SUM(iv.totalPrice)) AS total_spent,\n\tDENSE_RANK() OVER (ORDER BY SUM(iv.totalPrice) DESC) AS spending_rank\nFROM view_customer_[customer] cu\nINNER JOIN view_reservation_[reservation] re ON re.customer_ID = cu.customer_ID\nINNER JOIN view_invoice_[invoice] iv ON iv.reservation_ID = re.reservation_ID\nGROUP BY cu.customer_ID, cu.firstName, cu.lastName\nORDER BY spending_rank ASC;",
-    				"params": [
-    
-    				],
-    				"runOnSelect": true
+					"id": "customer_spending_rank",
+					"title": "Customer Spending Ranking",
+					"type": "table",
+					"description": "All customers ranked by total invoice spending",
+					"sql": "@system_management_customer_spending_rank_sql",
+					"params": [],
+					"runOnSelect": true
 				},
 				{
-    				"id": "room_category_popularity",
-    				"title": "Room Category Popularity Ranking",
-    				"type": "table",
-    				"description": "All room categories across every hotel ranked by total bookings",
-    				"sql": "SELECT ho.hotelName, rc.categoryTitle AS category,\n\tCOUNT(rr.reservation_ID) AS total_bookings,\n\tRANK() OVER (ORDER BY COUNT(rr.reservation_ID) DESC) AS popularity_rank\nFROM view_roomCategory_[roomCategory] rc\nINNER JOIN view_hotel_[hotel] ho ON ho.hotel_ID = rc.hotel_ID\nLEFT OUTER JOIN view_room_[room] ro ON ro.roomCategory_ID = rc.roomCategory_ID\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON rr.hotel_ID = ro.hotel_ID\n\tAND rr.roomNumber = ro.roomNumber\nGROUP BY ho.hotelName, rc.categoryTitle\nORDER BY popularity_rank;",
-    				"params": [
-    				
-    				],
-    				"runOnSelect": true
+					"id": "room_category_popularity",
+					"title": "Room Category Popularity Ranking",
+					"type": "table",
+					"description": "All room categories across every hotel ranked by total bookings",
+					"sql": "@system_management_room_category_popularity_sql",
+					"params": [],
+					"runOnSelect": true
 				},
 				{
-    				"id": "longest_reservations",
-    				"title": "Longest Reservations Ranking",
-    				"type": "table",
-    				"description": "All reservations ranked from longest to shortest stay in nights",
-    				"sql": "SELECT DISTINCT re.reservation_ID, dbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS customer, ho.hotelName,\n\tre.checkin, re.checkout, DATEDIFF(day, re.checkin, re.checkout) AS nights,\n\tDENSE_RANK() OVER (ORDER BY DATEDIFF(day, re.checkin, re.checkout) DESC) AS duration_rank\nFROM view_reservation_[reservation] re\nINNER JOIN view_customer_[customer] cu ON re.customer_ID = cu.customer_ID\nINNER JOIN view_room_reservation_[room_reservation] rr ON rr.reservation_ID = re.reservation_ID\nINNER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nORDER BY duration_rank;",
-    				"params": [],
-    				"runOnSelect": true
+					"id": "longest_reservations",
+					"title": "Longest Reservations Ranking",
+					"type": "table",
+					"description": "All reservations ranked from longest to shortest stay in nights",
+					"sql": "@system_management_longest_reservations_sql",
+					"params": [],
+					"runOnSelect": true
 				},
 				{
-					"id":"never_booked_rooms",
-					"title":"Never booked rooms",
-					"type":"table",
-					"description":"Find rooms which where never booked",
-					"sql":"SELECT hotel_id, roomNumber\nFROM view_room_[room]\nEXCEPT (\n\tSELECT hotel_ID, roomNumber\n\tFROM view_room_reservation_[room_reservation]\n)",
-					"params":[
-						
-					],
-					"runOnSelect":true
+					"id": "never_booked_rooms",
+					"title": "Never booked rooms",
+					"type": "table",
+					"description": "Find rooms which where never booked",
+					"sql": "@system_management_never_booked_rooms_sql",
+					"params": [],
+					"runOnSelect": true
 				}
 			]
 		},
 		{
-			"id":"customer_management",
-			"visibility":[
+			"id": "customer_management",
+			"visibility": [
 				"customer",
 				"system_admin"
 			],
-			"icon":"👤",
-			"title":"Customer management",
-			"type":"category",
-			"description":"",
-			"color":"#3b82f6",
-			"commands":[
+			"icon": "👤",
+			"title": "Customer management",
+			"type": "category",
+			"description": "",
+			"color": "#3b82f6",
+			"commands": [
 				{
-					"id":"get_customers",
-					"title":"All customers",
-					"label":"Search customer",
-					"type":"table",
-					"description":"Show data of a customers account",
-					"sql":"SELECT cu.customer_ID, cu.firstName, cu.lastName, cu.phoneNumber, cu.email, ad.country, ad.city, ad.district, ad.streetAddress\nFROM view_customer_[customer] cu\nINNER JOIN view_address_[address] ad ON cu.address_ID = ad.address_ID\nWHERE cu.customer_ID LIKE '%' + @customer_ID + '%'\n\tAND (\n\t\tcu.firstName LIKE '%' + @firstName + '%'\n\t\t\tAND cu.lastName LIKE '%' + @lastName + '%'\n\t\t)\n\tAND (\n\t\tad.country LIKE '%' + @country + '%'\n\t\t\tAND ad.city LIKE '%' + @city + '%'\n\t\t)\nORDER BY cu.customer_ID ASC;",
-					"params":[
+					"id": "get_customers",
+					"title": "All customers",
+					"label": "Search customer",
+					"type": "table",
+					"description": "Show data of a customers account",
+					"sql": "@customer_management_get_customers_sql",
+					"params": [
 						{
-							"name":"customer_ID",
-							"label":"customer ID",
-							"type":"text",
-							"placeholder":"CUS*****",
-							"required":false,
-							"readonly":false
+							"name": "customer_ID",
+							"label": "customer ID",
+							"type": "text",
+							"placeholder": "CUS*****",
+							"required": false,
+							"readonly": false
 						},
 						{
-							"name":"firstName",
-							"label":"first name",
-							"type":"text",
-							"placeholder":"",
-							"required":false,
-							"readonly":false
+							"name": "firstName",
+							"label": "first name",
+							"type": "text",
+							"placeholder": "",
+							"required": false,
+							"readonly": false
 						},
 						{
-							"name":"lastName",
-							"label":"last name",
-							"type":"text",
-							"placeholder":"",
-							"required":false,
-							"readonly":false
+							"name": "lastName",
+							"label": "last name",
+							"type": "text",
+							"placeholder": "",
+							"required": false,
+							"readonly": false
 						},
 						{
-							"name":"country",
-							"label":"country",
-							"type":"text",
-							"placeholder":"",
-							"required":false,
-							"readonly":false
+							"name": "country",
+							"label": "country",
+							"type": "text",
+							"placeholder": "",
+							"required": false,
+							"readonly": false
 						},
 						{
-							"name":"city",
-							"label":"city",
-							"type":"text",
-							"placeholder":"",
-							"required":false,
-							"readonly":false
+							"name": "city",
+							"label": "city",
+							"type": "text",
+							"placeholder": "",
+							"required": false,
+							"readonly": false
 						}
 					],
-					"runOnSelect":true,
-					"subSql":[
+					"runOnSelect": true,
+					"subSql": [
 						{
-							"id":"customer_overview",
-							"title":"Overview",
-							"type":"kpi",
-							"description":"",
-							"sql":[
+							"id": "customer_overview",
+							"title": "Overview",
+							"type": "kpi",
+							"description": "",
+							"sql": [
 								{
-									"title":"Name",
-									"sql":"SELECT dbo.FN_FULL_NAME(firstName, lastName) AS full_name\nFROM view_customer_[customer]\nWHERE customer_ID = @customer_ID;"
+									"title": "Name",
+									"sql": "@customer_management_get_customers_customer_overview_kpi_0"
 								},
 								{
-									"title":"Next destination",
-									"sql":"SELECT COALESCE(\n\t(\n\t\tSELECT TOP 1 ho.city\n\t\tFROM view_hotel_[hotel] ho\n\t\tINNER JOIN view_room_reservation_[room_reservation] rr ON rr.hotel_ID = ho.hotel_ID\n\t\tINNER JOIN view_reservation_[reservation] re ON re.reservation_ID = rr.reservation_ID\n\t\tWHERE re.customer_ID = @customer_ID\n\t\t\tAND re.checkin > GETDATE()\n\t\tORDER BY re.checkin\n\t), '') AS next_destination;"
+									"title": "Next destination",
+									"sql": "@customer_management_get_customers_customer_overview_kpi_1"
 								},
 								{
-									"title":"Total spending",
-									"sql":"SELECT dbo.FN_FORMAT_PRICE(SUM(iv.totalPrice)) AS total_spending\nFROM view_invoice_[invoice] iv\nINNER JOIN view_reservation_[reservation] re ON iv.reservation_ID = re.reservation_ID\nWHERE re.customer_ID = @customer_ID;"
-								}																
-							],
-							"params":[
-								{
-									"name":"customer_ID",
-									"label":"customer ID",
-									"type":"text",
-									"placeholder":"CUS*****",
-									"required":true,
-									"readonly":true
-								}							
-							],
-							"runOnSelect":true,
-							"insert":{
-								"title":"Update profile",
-								"sql":"UPDATE view_customer_[customer]\nSET firstName = @firstName,\n\tlastName = @lastName,\n\tphoneNumber = @phoneNumber,\n\temail = @email\nWHERE customer_ID = @customer_ID;\nUPDATE view_address_[address]\nSET country = @country,\n\tcity = @city,\n\tdistrict = @district,\n\tstreetAddress = @streetAddress\nWHERE address_ID = (\n\tSELECT TOP 1 address_ID \n\tFROM view_customer_[customer]\n\tWHERE customer_ID = @customer_ID\n)",
-								"params":[
-									{
-										"name":"customer_ID",
-										"label":"customer ID",
-										"type":"text",
-										"placeholder":"CUS*****",
-										"required":true,
-										"readonly":true
-									},
-									{
-										"name":"firstName",
-										"label":"first name",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
-									},
-									{
-										"name":"lastName",
-										"label":"last name",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
-									},
-									{
-										"name":"phoneNumber",
-										"label":"phone number",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
-									},
-									{
-										"name":"email",
-										"label":"email",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
-									},
-									{
-										"name":"country",
-										"label":"country",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
-									},
-									{
-										"name":"city",
-										"label":"city",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
-									},
-									{
-										"name":"district",
-										"label":"district",
-										"type":"text",
-										"placeholder":"",
-										"required":false,
-										"readonly":false
-									},
-									{
-										"name":"streetAddress",
-										"label":"street address",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
-									}								
-								]
-							}			
-						},
-						{
-							"id":"get_customer_reservations",
-							"title":"All reservations",
-							"label":"Get reservations",
-							"type":"table",
-							"description":"",
-							"sql":"SELECT re.reservation_ID, dbo.FN_FORMAT_PRICE(dbo.FN_GET_RESERVATION_PRICE(re.reservation_ID)) AS totalPrice, re.checkin, re.checkout, re.guests, dbo.FN_STATUS_DETAILS(re.status) AS status, COALESCE(ho.hotelName, '') AS hotelName, ho.hotel_ID, COUNT(rr.roomNumber) AS reserved_rooms\nFROM view_reservation_[reservation] re\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON re.reservation_ID = rr.reservation_ID\nLEFT OUTER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nWHERE re.customer_ID = @customer_ID\nGROUP BY re.reservation_ID, re.checkin, re.checkout, re.guests, status, ho.hotelName, ho.hotel_ID\nORDER BY re.checkin ASC;",
-							"params":[
-								{
-									"name":"customer_ID",
-									"label":"customer ID",
-									"type":"text",
-									"placeholder":"CUS*****",
-									"required":true,
-									"readonly":true
+									"title": "Total spending",
+									"sql": "@customer_management_get_customers_customer_overview_kpi_2"
 								}
 							],
-							"runOnSelect":true,
-							"subSql":[
+							"params": [
 								{
-									"id":"reservation_overview",
-									"title":"Reservation overview",
-									"type":"kpi",
-									"description":"",
-									"sql":[
+									"name": "customer_ID",
+									"label": "customer ID",
+									"type": "text",
+									"placeholder": "CUS*****",
+									"required": true,
+									"readonly": true
+								}
+							],
+							"runOnSelect": true,
+							"insert": {
+								"title": "Update profile",
+								"sql": "@customer_management_get_customers_customer_overview_insert",
+								"params": [
+									{
+										"name": "customer_ID",
+										"label": "customer ID",
+										"type": "text",
+										"placeholder": "CUS*****",
+										"required": true,
+										"readonly": true
+									},
+									{
+										"name": "firstName",
+										"label": "first name",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
+									},
+									{
+										"name": "lastName",
+										"label": "last name",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
+									},
+									{
+										"name": "phoneNumber",
+										"label": "phone number",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
+									},
+									{
+										"name": "email",
+										"label": "email",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
+									},
+									{
+										"name": "country",
+										"label": "country",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
+									},
+									{
+										"name": "city",
+										"label": "city",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
+									},
+									{
+										"name": "district",
+										"label": "district",
+										"type": "text",
+										"placeholder": "",
+										"required": false,
+										"readonly": false
+									},
+									{
+										"name": "streetAddress",
+										"label": "street address",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
+									}
+								]
+							}
+						},
+						{
+							"id": "get_customer_reservations",
+							"title": "All reservations",
+							"label": "Get reservations",
+							"type": "table",
+							"description": "",
+							"sql": "@customer_management_get_customers_get_customer_reservations_sql",
+							"params": [
+								{
+									"name": "customer_ID",
+									"label": "customer ID",
+									"type": "text",
+									"placeholder": "CUS*****",
+									"required": true,
+									"readonly": true
+								}
+							],
+							"runOnSelect": true,
+							"subSql": [
+								{
+									"id": "reservation_overview",
+									"title": "Reservation overview",
+									"type": "kpi",
+									"description": "",
+									"sql": [
 										{
-											"title":"Hotel",
-											"sql":"SELECT ho.hotelName\nFROM view_room_reservation_[room_reservation] rr\nINNER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nWHERE rr.reservation_ID = @reservation_ID;"
+											"title": "Hotel",
+											"sql": "@customer_management_get_customers_get_customer_reservations_reservation_overview_kpi_0"
 										},
 										{
-											"title":"Status",
-											"sql":"SELECT dbo.FN_STATUS_DETAILS(re.status) AS status\nFROM view_reservation_[reservation] re\nWHERE re.reservation_ID = @reservation_ID;"
+											"title": "Status",
+											"sql": "@customer_management_get_customers_get_customer_reservations_reservation_overview_kpi_1"
 										},
 										{
-											"title":"Total price",
-											"sql":"SELECT dbo.FN_FORMAT_PRICE(dbo.FN_GET_RESERVATION_PRICE(@reservation_ID)) AS total_price;"
+											"title": "Total price",
+											"sql": "@customer_management_get_customers_get_customer_reservations_reservation_overview_kpi_2"
 										},
 										{
-											"title":"Nights",
-											"sql":"SELECT DATEDIFF(day, checkin, checkout) AS nights\nFROM view_reservation_[reservation]\nWHERE reservation_ID = @reservation_ID;"
+											"title": "Nights",
+											"sql": "@customer_management_get_customers_get_customer_reservations_reservation_overview_kpi_3"
 										}
 									],
-									"params":[
+									"params": [
 										{
-											"name":"reservation_ID",
-											"label":"reservation ID",
-											"type":"text",
-											"placeholder":"RES*****",
-											"required":true,
-											"readonly":true
+											"name": "reservation_ID",
+											"label": "reservation ID",
+											"type": "text",
+											"placeholder": "RES*****",
+											"required": true,
+											"readonly": true
 										}
 									],
-									"runOnSelect":true,
-									"insert":{
-										"title":"Cancel reservation",
-										"sql":"UPDATE view_reservation_[reservation]\nSET status = 'C'\nWHERE reservation_ID = @reservation_ID\n\tAND status = 'R';",
-										"params":[
+									"runOnSelect": true,
+									"insert": {
+										"title": "Cancel reservation",
+										"sql": "@customer_management_get_customers_get_customer_reservations_reservation_overview_insert",
+										"params": [
 											{
-												"name":"reservation_ID",
-												"label":"reservation ID",
-												"type":"text",
-												"placeholder":"RES*****",
-												"required":true,
-												"readonly":true
+												"name": "reservation_ID",
+												"label": "reservation ID",
+												"type": "text",
+												"placeholder": "RES*****",
+												"required": true,
+												"readonly": true
 											}
 										]
 									}
 								},
 								{
-									"id":"get_reservation_additionalOptions",
-									"title":"Additional booking options",
-									"label":"Get booked options",
-									"type":"table",
-									"description":"",
-									"sql":"SELECT ra.reservation_ID, ao.additionalOptionTitle AS booking_option, ra.amount, dbo.FN_FORMAT_PRICE(ra.amount * ao.price) AS total_price\nFROM view_additionalOption_[additionalOption] ao\nINNER JOIN view_reservation_additionalOption_[reservation_additionalOption] ra ON ao.additionalOptionTitle = ra.additionalOptionTitle\n\tAND ao.hotel_ID = ra.hotel_ID\nWHERE ra.reservation_ID = @reservation_ID;",
-									"params":[
+									"id": "get_reservation_additionalOptions",
+									"title": "Additional booking options",
+									"label": "Get booked options",
+									"type": "table",
+									"description": "",
+									"sql": "@customer_management_get_customers_get_customer_reservations_get_reservation_additionalOptions_sql",
+									"params": [
 										{
-											"name":"reservation_ID",
-											"label":"reservation ID",
-											"type":"text",
-											"placeholder":"RES*****",
-											"required":true,
-											"readonly":true
-										}									
+											"name": "reservation_ID",
+											"label": "reservation ID",
+											"type": "text",
+											"placeholder": "RES*****",
+											"required": true,
+											"readonly": true
+										}
 									],
-									"runOnSelect":true,
-									"insert":{
-										"title":"Add booking option",
-										"sql":"INSERT INTO view_reservation_additionalOption_system_admin (reservation_ID, additionalOptionTitle, hotel_ID, amount)\nVALUES (@reservation_ID, @additionalOption_selection, @hotel_ID, @amount);",
-										"params":[
+									"runOnSelect": true,
+									"insert": {
+										"title": "Add booking option",
+										"sql": "@customer_management_get_customers_get_customer_reservations_get_reservation_additionalOptions_insert",
+										"params": [
 											{
-												"name":"reservation_ID",
-												"label":"reservation ID",
-												"type":"text",
-												"placeholder":"RES*****",
-												"required":true,
-												"readonly":true
+												"name": "reservation_ID",
+												"label": "reservation ID",
+												"type": "text",
+												"placeholder": "RES*****",
+												"required": true,
+												"readonly": true
 											},
 											{
-												"name":"hotel_ID",
-												"label":"hotel ID",
-												"type":"text",
-												"placeholder":"HTL*****",
-												"required":true,
-												"readonly":true
+												"name": "hotel_ID",
+												"label": "hotel ID",
+												"type": "text",
+												"placeholder": "HTL*****",
+												"required": true,
+												"readonly": true
 											},
 											{
-												"name":"additionalOption_selection",
-												"label":"booking option",
-												"type":"select",
-												"required":true,
-												"readonly":false,
-												"options":"SELECT additionalOptionTitle AS ID, additionalOptionTitle AS title FROM view_additionalOption_[additionalOption] WHERE hotel_ID = @hotel_ID;"												
+												"name": "additionalOption_selection",
+												"label": "booking option",
+												"type": "select",
+												"required": true,
+												"readonly": false,
+												"options": "@customer_management_get_customers_get_customer_reservations_get_reservation_additionalOptions_opt_additionalOption_selection"
 											},
 											{
-												"name":"amount",
-												"label":"amount",
-												"type":"number",
-												"placeholder":"1",
-												"required":true,
-												"readonly":false												
-											}										
+												"name": "amount",
+												"label": "amount",
+												"type": "number",
+												"placeholder": "1",
+												"required": true,
+												"readonly": false
+											}
 										]
 									},
-									"subSql":[
+									"subSql": [
 										{
-											"id":"change_reservation_additionalOption_amount",
-											"title":"Change amount",
-											"label":"Change booked amount",
-											"type":"void",
-											"description":"",
-											"sql":"UPDATE view_reservation_additionalOption_[reservation_additionalOption]\nSET amount = @amount\nWHERE reservation_ID = @reservation_ID\n\tAND hotel_ID = @hotel_ID\n\tAND additionalOptionTitle = @booking_option;",
-											"params":[
+											"id": "change_reservation_additionalOption_amount",
+											"title": "Change amount",
+											"label": "Change booked amount",
+											"type": "void",
+											"description": "",
+											"sql": "@customer_management_get_customers_get_customer_reservations_get_reservation_additionalOptions_change_reservation_additionalOption_amount_sql",
+											"params": [
 												{
-													"name":"reservation_ID",
-													"label":"reservation ID",
-													"type":"text",
-													"placeholder":"RES*****",
-													"required":true,
-													"readonly":true
+													"name": "reservation_ID",
+													"label": "reservation ID",
+													"type": "text",
+													"placeholder": "RES*****",
+													"required": true,
+													"readonly": true
 												},
 												{
-													"name":"hotel_ID",
-													"label":"hotel ID",
-													"type":"text",
-													"placeholder":"HTL*****",
-													"required":true,
-													"readonly":true
+													"name": "hotel_ID",
+													"label": "hotel ID",
+													"type": "text",
+													"placeholder": "HTL*****",
+													"required": true,
+													"readonly": true
 												},
 												{
-													"name":"booking_option",
-													"label":"booking option",
-													"type":"text",
-													"placeholder":"",
-													"required":true,
-													"readonly":true
+													"name": "booking_option",
+													"label": "booking option",
+													"type": "text",
+													"placeholder": "",
+													"required": true,
+													"readonly": true
 												},
 												{
-													"name":"amount",
-													"label":"amount",
-													"type":"number",
-													"placeholder":"1",
-													"required":true,
-													"readonly":false
-												}																																								
-											]										
+													"name": "amount",
+													"label": "amount",
+													"type": "number",
+													"placeholder": "1",
+													"required": true,
+													"readonly": false
+												}
+											]
 										},
 										{
-											"id":"remove_reservation_additionalOption",
-											"title":"Remove booking option",
-											"label":"Remove this option",
-											"type":"void",
-											"description":"",
-											"sql":"DELETE FROM view_reservation_additionalOption_[reservation_additionalOption]\nWHERE reservation_ID = @reservation_ID\n\tAND hotel_ID = @hotel_ID\n\tAND additionalOptionTitle = @booking_option;",
-											"params":[
+											"id": "remove_reservation_additionalOption",
+											"title": "Remove booking option",
+											"label": "Remove this option",
+											"type": "void",
+											"description": "",
+											"sql": "@customer_management_get_customers_get_customer_reservations_get_reservation_additionalOptions_remove_reservation_additionalOption_sql",
+											"params": [
 												{
-													"name":"reservation_ID",
-													"label":"reservation ID",
-													"type":"text",
-													"placeholder":"RES*****",
-													"required":true,
-													"readonly":true
+													"name": "reservation_ID",
+													"label": "reservation ID",
+													"type": "text",
+													"placeholder": "RES*****",
+													"required": true,
+													"readonly": true
 												},
 												{
-													"name":"hotel_ID",
-													"label":"hotel ID",
-													"type":"text",
-													"placeholder":"HTL*****",
-													"required":true,
-													"readonly":true
+													"name": "hotel_ID",
+													"label": "hotel ID",
+													"type": "text",
+													"placeholder": "HTL*****",
+													"required": true,
+													"readonly": true
 												},
 												{
-													"name":"booking_option",
-													"label":"booking option",
-													"type":"text",
-													"placeholder":"",
-													"required":true,
-													"readonly":true
-												}																																							
-											]										
+													"name": "booking_option",
+													"label": "booking option",
+													"type": "text",
+													"placeholder": "",
+													"required": true,
+													"readonly": true
+												}
+											]
 										}
 									]
 								}
 							]
 						},
 						{
-							"id":"search_hotel",
-							"title":"Search hotel",
-							"label":"Search hotel",
-							"type":"table",
-							"description":"",
-							"sql":"SELECT ho.hotel_ID, ho.hotelName, ho.country, ho.city, ho.district, dbo.FN_FORMAT_PRICE(MIN(rc.price)) AS min_price\nFROM view_roomCategory_[roomCategory] rc\nINNER JOIN view_hotel_[hotel] ho ON rc.hotel_ID = ho.hotel_ID\nINNER JOIN dbo.FN_GET_AVAILABLE_ROOMS(@checkin, @checkout) ro ON ro.hotel_ID = ho.hotel_ID\nWHERE ho.city LIKE '%' + @hotel_city + '%'\n\tAND ho.district LIKE '%' + @hotel_district + '%'\nGROUP BY ho.hotel_ID, ho.hotelName, ho.country, ho.city, ho.district\nHAVING SUM(rc.maxGuests) >= @guests\nORDER BY min_price ASC;",
-							"params":[
+							"id": "search_hotel",
+							"title": "Search hotel",
+							"label": "Search hotel",
+							"type": "table",
+							"description": "",
+							"sql": "@customer_management_get_customers_search_hotel_sql",
+							"params": [
 								{
-									"name":"hotel_city",
-									"label":"city",
-									"type":"text",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
+									"name": "hotel_city",
+									"label": "city",
+									"type": "text",
+									"placeholder": "",
+									"required": true,
+									"readonly": false
 								},
 								{
-									"name":"hotel_district",
-									"label":"district",
-									"type":"text",
-									"placeholder":"",
-									"required":false,
-									"readonly":false
+									"name": "hotel_district",
+									"label": "district",
+									"type": "text",
+									"placeholder": "",
+									"required": false,
+									"readonly": false
 								},
 								{
-									"name":"checkin",
-									"label":"Check-in date",
-									"type":"date",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
+									"name": "checkin",
+									"label": "Check-in date",
+									"type": "date",
+									"placeholder": "",
+									"required": true,
+									"readonly": false
 								},
 								{
-									"name":"checkout",
-									"label":"Check-out date",
-									"type":"date",
-									"placeholder":"",
-									"required":true,
-									"readonly":false
+									"name": "checkout",
+									"label": "Check-out date",
+									"type": "date",
+									"placeholder": "",
+									"required": true,
+									"readonly": false
 								},
 								{
-									"name":"guests",
-									"label":"guests",
-									"type":"number",
-									"placeholder":"1",
-									"required":true,
-									"readonly":false
+									"name": "guests",
+									"label": "guests",
+									"type": "number",
+									"placeholder": "1",
+									"required": true,
+									"readonly": false
 								}
 							],
-							"runOnSelect":false,
-							"subSql":[
+							"runOnSelect": false,
+							"subSql": [
 								{
-									"id":"get_available_roomCategories",
-									"title":"Get available room categories",
-									"label":"Get available room categories",
-									"type":"table",
-									"description":"",
-									"sql":"WITH RoomCategoryEquipment AS (\n\tSELECT rc.roomCategory_ID, STRING_AGG(eq.equipmentTitle, ', ') AS equipment\n\tFROM view_equipment_[equipment] eq\n\tINNER JOIN view_roomCategory_equipment_[roomCategory_equipment] rce ON rce.equipment_ID = eq.equipment_ID\n\tINNER JOIN view_roomCategory_[roomCategory] rc ON rc.roomCategory_ID = rce.roomCategory_ID\n\tGROUP BY rc.roomCategory_ID\n)\nSELECT rc.roomCategory_ID, rc.categoryTitle, rc.maxGuests, dbo.FN_FORMAT_PRICE(rc.price) AS price, CONCAT(rc.[size], 'm²') AS [size], rce.equipment, COUNT(DISTINCT ro.roomNumber) AS available_rooms\nFROM view_roomCategory_[roomCategory] rc\nLEFT OUTER JOIN RoomCategoryEquipment rce ON rce.roomCategory_ID = rc.roomCategory_ID\nINNER JOIN dbo.FN_GET_AVAILABLE_ROOMS(@checkin, @checkout) ro ON ro.roomCategory_ID = rc.roomCategory_ID\nWHERE rc.hotel_ID = @hotel_ID\nGROUP BY rc.roomCategory_ID, rc.categoryTitle, rc.maxGuests, price, CONCAT(rc.[size], 'm²'), rce.equipment;",
-									"params":[
+									"id": "get_available_roomCategories",
+									"title": "Get available room categories",
+									"label": "Get available room categories",
+									"type": "table",
+									"description": "",
+									"sql": "@customer_management_get_customers_search_hotel_get_available_roomCategories_sql",
+									"params": [
 										{
-											"name":"hotel_ID",
-											"label":"hotel ID",
-											"type":"text",
-											"placeholder":"HTL*****",
-											"required":true,
-											"readonly":true
+											"name": "hotel_ID",
+											"label": "hotel ID",
+											"type": "text",
+											"placeholder": "HTL*****",
+											"required": true,
+											"readonly": true
 										},
 										{
-											"name":"checkin",
-											"label":"Check-in date",
-											"type":"date",
-											"placeholder":"YYYY-MM-DD",
-											"required":true,
-											"readonly":true
+											"name": "checkin",
+											"label": "Check-in date",
+											"type": "date",
+											"placeholder": "YYYY-MM-DD",
+											"required": true,
+											"readonly": true
 										},
 										{
-											"name":"checkout",
-											"label":"Check-out date",
-											"type":"date",
-											"placeholder":"YYYY-MM-DD",
-											"required":true,
-											"readonly":true
+											"name": "checkout",
+											"label": "Check-out date",
+											"type": "date",
+											"placeholder": "YYYY-MM-DD",
+											"required": true,
+											"readonly": true
 										},
 										{
-											"name":"guests",
-											"label":"guests",
-											"type":"number",
-											"placeholder":"1",
-											"required":true,
-											"readonly":true
+											"name": "guests",
+											"label": "guests",
+											"type": "number",
+											"placeholder": "1",
+											"required": true,
+											"readonly": true
 										}
 									],
-									"runOnSelect":true,
+									"runOnSelect": true,
 									"insert": {
-										"title":"Create reservation",
-										"sql":"EXEC SP_CREATE_RESERVATION\n\t@res_customer_ID = @customer_ID,\n\t@res_checkin = @checkin,\n\t@res_checkout = @checkout,\n\t@res_guests = @guests,\n\t@res_hotel_ID = @hotel_ID,\n\t@res_room_count = @room_count,\n\t@res_roomCategory_ID = @roomCategory_selection;",
-										"params":[
+										"title": "Create reservation",
+										"sql": "@customer_management_get_customers_search_hotel_get_available_roomCategories_insert",
+										"params": [
 											{
-												"name":"customer_ID",
-												"label":"customer ID",
-												"type":"text",
-												"placeholder":"CUS*****",
-												"required":true,
-												"readonly":true
+												"name": "customer_ID",
+												"label": "customer ID",
+												"type": "text",
+												"placeholder": "CUS*****",
+												"required": true,
+												"readonly": true
 											},
 											{
-												"name":"hotel_ID",
-												"label":"hotel ID",
-												"type":"text",
-												"placeholder":"HTL*****",
-												"required":true,
-												"readonly":true
+												"name": "hotel_ID",
+												"label": "hotel ID",
+												"type": "text",
+												"placeholder": "HTL*****",
+												"required": true,
+												"readonly": true
 											},
 											{
-												"name":"checkin",
-												"label":"Check-in date",
-												"type":"date",
-												"placeholder":"YYYY-MM-DD",
-												"required":true,
-												"readonly":true
+												"name": "checkin",
+												"label": "Check-in date",
+												"type": "date",
+												"placeholder": "YYYY-MM-DD",
+												"required": true,
+												"readonly": true
 											},
 											{
-												"name":"checkout",
-												"label":"Check-out date",
-												"type":"date",
-												"placeholder":"YYYY-MM-DD",
-												"required":true,
-												"readonly":true
+												"name": "checkout",
+												"label": "Check-out date",
+												"type": "date",
+												"placeholder": "YYYY-MM-DD",
+												"required": true,
+												"readonly": true
 											},
 											{
-												"name":"guests",
-												"label":"guests",
-												"type":"number",
-												"placeholder":"1",
-												"required":true,
-												"readonly":false
+												"name": "guests",
+												"label": "guests",
+												"type": "number",
+												"placeholder": "1",
+												"required": true,
+												"readonly": false
 											},
 											{
-												"name":"room_count",
-												"label":"Number of rooms",
-												"type":"number",
-												"placeholder":"1",
-												"required":true,
-												"readonly":false
+												"name": "room_count",
+												"label": "Number of rooms",
+												"type": "number",
+												"placeholder": "1",
+												"required": true,
+												"readonly": false
 											},
 											{
-												"name":"roomCategory_selection",
-												"label":"room category",
-												"type":"select",
-												"required":true,
-												"readonly":false,
-												"options":"SELECT DISTINCT rc.roomCategory_ID, rc.categoryTitle FROM view_roomCategory_[roomCategory] rc INNER JOIN dbo.FN_GET_AVAILABLE_ROOMS(@checkin, @checkout) ro ON rc.hotel_ID = ro.hotel_ID AND rc.roomCategory_ID = ro.roomCategory_ID WHERE rc.hotel_ID = @hotel_ID;"
+												"name": "roomCategory_selection",
+												"label": "room category",
+												"type": "select",
+												"required": true,
+												"readonly": false,
+												"options": "@customer_management_get_customers_search_hotel_get_available_roomCategories_opt_roomCategory_selection"
 											}
 										]
 									}
@@ -800,914 +786,914 @@
 							]
 						},
 						{
-							"id":"delete_customer",
-							"title":"Delete profile",
-							"label":"Delete profile",
-							"type":"void",
-							"description":"",
-							"sql":"DELETE FROM view_customer_[customer]\nWHERE customer_ID = @customer_ID",
-							"params":[
+							"id": "delete_customer",
+							"title": "Delete profile",
+							"label": "Delete profile",
+							"type": "void",
+							"description": "",
+							"sql": "@customer_management_get_customers_delete_customer_sql",
+							"params": [
 								{
-									"name":"customer_ID",
-									"label":"customer ID",
-									"type":"text",
-									"placeholder":"CUS*****",
-									"required":true,
-									"readonly":true
+									"name": "customer_ID",
+									"label": "customer ID",
+									"type": "text",
+									"placeholder": "CUS*****",
+									"required": true,
+									"readonly": true
 								}
 							],
-							"runOnSelect":false
+							"runOnSelect": false
 						}
 					]
 				}
 			]
 		},
 		{
-			"id":"hotel_management",
-			"visibility":[
+			"id": "hotel_management",
+			"visibility": [
 				"hotel_staff",
 				"system_admin"
 			],
-			"icon":"🛎️",
-			"title":"Hotel management",
-			"type":"category",
-			"description":"",
-			"color":"#10b981",
-			"commands":[
+			"icon": "🛎️",
+			"title": "Hotel management",
+			"type": "category",
+			"description": "",
+			"color": "#10b981",
+			"commands": [
 				{
-					"id":"get_hotels",
-					"title":"All hotels",
-					"label":"Search hotel",
-					"type":"table",
-					"description":"Show data of hotels",
-					"sql":"SELECT ho.hotel_ID, ho.hotelName, ho.phoneNumber, ho.email, ad.country, ad.city, ad.district, ad.streetAddress\nFROM view_hotel_[hotel] ho\nINNER JOIN view_address_[address] ad ON ho.address_ID = ad.address_ID\nWHERE ho.hotel_ID LIKE '%' + @hotel_ID + '%'\n\tAND ho.hotelName LIKE '%' + @hotelName + '%'\n\tAND (\n\t\tad.country LIKE '%' + @country + '%'\n\t\t\tAND ad.city LIKE '%' + @city + '%'\n\t\t)\nORDER BY ho.hotel_ID ASC;",
-					"params":[
+					"id": "get_hotels",
+					"title": "All hotels",
+					"label": "Search hotel",
+					"type": "table",
+					"description": "Show data of hotels",
+					"sql": "@hotel_management_get_hotels_sql",
+					"params": [
 						{
-							"name":"hotel_ID",
-							"label":"hotel ID",
-							"type":"text",
-							"placeholder":"HTL*****",
-							"required":false,
-							"readonly":false
+							"name": "hotel_ID",
+							"label": "hotel ID",
+							"type": "text",
+							"placeholder": "HTL*****",
+							"required": false,
+							"readonly": false
 						},
 						{
-							"name":"hotelName",
-							"label":"hotel name",
-							"type":"text",
-							"placeholder":"",
-							"required":false,
-							"readonly":false
+							"name": "hotelName",
+							"label": "hotel name",
+							"type": "text",
+							"placeholder": "",
+							"required": false,
+							"readonly": false
 						},
 						{
-							"name":"country",
-							"label":"country",
-							"type":"text",
-							"placeholder":"",
-							"required":false,
-							"readonly":false
+							"name": "country",
+							"label": "country",
+							"type": "text",
+							"placeholder": "",
+							"required": false,
+							"readonly": false
 						},
 						{
-							"name":"city",
-							"label":"city",
-							"type":"text",
-							"placeholder":"",
-							"required":false,
-							"readonly":false
+							"name": "city",
+							"label": "city",
+							"type": "text",
+							"placeholder": "",
+							"required": false,
+							"readonly": false
 						}
 					],
-					"runOnSelect":true,
-					"insert":{
-						"title":"Create new hotel",
-						"sql":"EXEC SP_CREATE_HOTEL\n\t@hotel_name = @hotelName,\n\t@hotel_email = @email,\n\t@hotel_phoneNumber = @phoneNumber,\n\t@hotel_country = @country,\n\t@hotel_city = @city,\n\t@hotel_district = @district,\n\t@hotel_streetAddress = @streetAddress;",
-						"params":[
+					"runOnSelect": true,
+					"insert": {
+						"title": "Create new hotel",
+						"sql": "@hotel_management_get_hotels_insert",
+						"params": [
 							{
-								"name":"hotelName",
-								"label":"hotel name",
-								"type":"text",
-								"placeholder":"",
-								"required":true,
-								"readonly":false
+								"name": "hotelName",
+								"label": "hotel name",
+								"type": "text",
+								"placeholder": "",
+								"required": true,
+								"readonly": false
 							},
 							{
-								"name":"phoneNumber",
-								"label":"phone number",
-								"type":"text",
-								"placeholder":"",
-								"required":true,
-								"readonly":false
+								"name": "phoneNumber",
+								"label": "phone number",
+								"type": "text",
+								"placeholder": "",
+								"required": true,
+								"readonly": false
 							},
 							{
-								"name":"email",
-								"label":"email",
-								"type":"text",
-								"placeholder":"",
-								"required":true,
-								"readonly":false
+								"name": "email",
+								"label": "email",
+								"type": "text",
+								"placeholder": "",
+								"required": true,
+								"readonly": false
 							},
 							{
-								"name":"country",
-								"label":"country",
-								"type":"text",
-								"placeholder":"",
-								"required":true,
-								"readonly":false
+								"name": "country",
+								"label": "country",
+								"type": "text",
+								"placeholder": "",
+								"required": true,
+								"readonly": false
 							},
 							{
-								"name":"city",
-								"label":"city",
-								"type":"text",
-								"placeholder":"",
-								"required":true,
-								"readonly":false
+								"name": "city",
+								"label": "city",
+								"type": "text",
+								"placeholder": "",
+								"required": true,
+								"readonly": false
 							},
 							{
-								"name":"district",
-								"label":"district",
-								"type":"text",
-								"placeholder":"",
-								"required":true,
-								"readonly":false
+								"name": "district",
+								"label": "district",
+								"type": "text",
+								"placeholder": "",
+								"required": true,
+								"readonly": false
 							},
 							{
-								"name":"streetAddress",
-								"label":"street address",
-								"type":"text",
-								"placeholder":"",
-								"required":true,
-								"readonly":false
+								"name": "streetAddress",
+								"label": "street address",
+								"type": "text",
+								"placeholder": "",
+								"required": true,
+								"readonly": false
 							}
 						]
 					},
-					"subSql":[
+					"subSql": [
 						{
-							"id":"hotel_overview",
-							"title":"Overview",
-							"type":"kpi",
-							"description":"",
-							"sql":[
+							"id": "hotel_overview",
+							"title": "Overview",
+							"type": "kpi",
+							"description": "",
+							"sql": [
 								{
-									"title":"Hotel name",
-									"sql":"SELECT hotelName\nFROM view_hotel_[hotel]\nWHERE hotel_ID = @hotel_ID;"
+									"title": "Hotel name",
+									"sql": "@hotel_management_get_hotels_hotel_overview_kpi_0"
 								},
 								{
-									"title":"Current Guests",
-									"sql":"SELECT COALESCE(SUM(re.guests), 0) AS current_guests\nFROM view_reservation_[reservation] re\nINNER JOIN view_room_reservation_[room_reservation] rr ON re.reservation_ID = rr.reservation_ID\nWHERE GETDATE() BETWEEN re.checkin AND re.checkout\n\tAND re.[status] IN ('R', 'P')\n\tAND rr.hotel_ID = @hotel_ID;"
+									"title": "Current Guests",
+									"sql": "@hotel_management_get_hotels_hotel_overview_kpi_1"
 								},
 								{
-									"title":"Room occupancy",
-									"sql":"SELECT CONCAT(CAST(CAST(COUNT(re.reservation_ID) AS FLOAT) / CAST((CASE COUNT(DISTINCT ro.roomNumber) WHEN 0 THEN 1 ELSE COUNT(DISTINCT ro.roomNumber) END) AS FLOAT) * 100 AS DECIMAL(5,2)), '%') AS occupancy\nFROM view_room_[room] ro\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON ro.hotel_ID = rr.hotel_ID\n\tAND ro.roomNumber = rr.roomNumber\nLEFT OUTER JOIN view_reservation_[reservation] re ON rr.reservation_ID = re.reservation_ID\n\tAND re.[status] IN ('R', 'P')\n\tAND GETDATE() BETWEEN re.checkin AND re.checkout\nWHERE ro.hotel_ID = @hotel_ID;"
+									"title": "Room occupancy",
+									"sql": "@hotel_management_get_hotels_hotel_overview_kpi_2"
 								},
 								{
-									"title":"Revenue (Current Year)",
-									"sql":"SELECT dbo.FN_FORMAT_PRICE(SUM(iv.totalPrice)) AS current_year_revenue\nFROM (\n\tSELECT DISTINCT reservation_ID FROM view_room_reservation_[room_reservation] WHERE hotel_ID = @hotel_ID\n) rr\nINNER JOIN view_invoice_[invoice] iv ON iv.reservation_ID = rr.reservation_ID\nWHERE YEAR(iv.invoiceDate) = YEAR(GETDATE())"
+									"title": "Revenue (Current Year)",
+									"sql": "@hotel_management_get_hotels_hotel_overview_kpi_3"
 								},
 								{
-									"title":"Total rooms",
-									"sql":"SELECT COUNT(*) AS room_count\nFROM view_room_[room]\nWHERE hotel_ID = @hotel_ID;"
+									"title": "Total rooms",
+									"sql": "@hotel_management_get_hotels_hotel_overview_kpi_4"
 								},
 								{
-									"title":"Total room categories",
-									"sql":"SELECT COUNT(*) AS roomCategory_count\nFROM view_roomCategory_[roomCategory]\nWHERE hotel_ID = @hotel_ID;"
+									"title": "Total room categories",
+									"sql": "@hotel_management_get_hotels_hotel_overview_kpi_5"
 								}
 							],
-							"params":[
+							"params": [
 								{
-									"name":"hotel_ID",
-									"label":"hotel ID",
-									"type":"text",
-									"placeholder":"HTL*****",
-									"required":true,
-									"readonly":true
+									"name": "hotel_ID",
+									"label": "hotel ID",
+									"type": "text",
+									"placeholder": "HTL*****",
+									"required": true,
+									"readonly": true
 								}
 							],
-							"runOnSelect":true,
-							"insert":{
-								"title":"Update hotel profile",
-								"sql":"UPDATE view_hotel_[hotel]\nSET hotelName = @hotelName,\n\tphoneNumber = @phoneNumber,\n\temail = @email\nWHERE hotel_ID = @hotel_ID;\nUPDATE view_address_[address]\nSET country = @country,\n\tcity = @city,\n\tdistrict = @district,\n\tstreetAddress = @streetAddress\nWHERE address_ID = (\n\tSELECT TOP 1 address_ID \n\tFROM view_hotel_[hotel]\n\tWHERE hotel_ID = @hotel_ID\n);",
-								"params":[
+							"runOnSelect": true,
+							"insert": {
+								"title": "Update hotel profile",
+								"sql": "@hotel_management_get_hotels_hotel_overview_insert",
+								"params": [
 									{
-										"name":"hotel_ID",
-										"label":"hotel ID",
-										"type":"text",
-										"placeholder":"HTL*****",
-										"required":true,
-										"readonly":true
+										"name": "hotel_ID",
+										"label": "hotel ID",
+										"type": "text",
+										"placeholder": "HTL*****",
+										"required": true,
+										"readonly": true
 									},
 									{
-										"name":"hotelName",
-										"label":"hotel name",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "hotelName",
+										"label": "hotel name",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"phoneNumber",
-										"label":"phone number",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "phoneNumber",
+										"label": "phone number",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"email",
-										"label":"email",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "email",
+										"label": "email",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"country",
-										"label":"country",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "country",
+										"label": "country",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"city",
-										"label":"city",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "city",
+										"label": "city",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"district",
-										"label":"district",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "district",
+										"label": "district",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"streetAddress",
-										"label":"street address",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "streetAddress",
+										"label": "street address",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									}
 								]
 							}
 						},
 						{
-							"id":"get_roomCategories",
-							"title":"Room categories",
-							"label":"Get room categories",
-							"type":"table",
-							"description":"",
-							"sql":"SELECT rc.roomCategory_ID, rc.categoryTitle AS category, rc.maxGuests, dbo.FN_FORMAT_PRICE(rc.price) AS price, CONCAT(rc.[size], 'm²') AS [size], COUNT(DISTINCT ro.roomNumber) AS room_count\nFROM view_roomCategory_[roomCategory] rc\nLEFT OUTER JOIN view_room_[room] ro ON ro.roomCategory_ID = rc.roomCategory_ID\nWHERE rc.hotel_ID = @hotel_ID\nGROUP BY rc.roomCategory_ID, rc.categoryTitle, rc.maxGuests, price, CONCAT(rc.[size], 'm²');",
-							"params":[
+							"id": "get_roomCategories",
+							"title": "Room categories",
+							"label": "Get room categories",
+							"type": "table",
+							"description": "",
+							"sql": "@hotel_management_get_hotels_get_roomCategories_sql",
+							"params": [
 								{
-									"name":"hotel_ID",
-									"label":"hotel ID",
-									"type":"text",
-									"placeholder":"HTL*****",
-									"required":true,
-									"readonly":true
+									"name": "hotel_ID",
+									"label": "hotel ID",
+									"type": "text",
+									"placeholder": "HTL*****",
+									"required": true,
+									"readonly": true
 								}
 							],
-							"runOnSelect":true,
-							"insert":{
-								"title":"Create new room category",
-								"sql":"INSERT INTO view_roomCategory_[roomCategory] (hotel_ID, categoryTitle, maxGuests, price, size)\nVALUES (@hotel_ID, @category, @maxGuests, @price, @size)",
-								"params":[
+							"runOnSelect": true,
+							"insert": {
+								"title": "Create new room category",
+								"sql": "@hotel_management_get_hotels_get_roomCategories_insert",
+								"params": [
 									{
-										"name":"hotel_ID",
-										"label":"hotel ID",
-										"type":"text",
-										"placeholder":"HTL*****",
-										"required":true,
-										"readonly":true
+										"name": "hotel_ID",
+										"label": "hotel ID",
+										"type": "text",
+										"placeholder": "HTL*****",
+										"required": true,
+										"readonly": true
 									},
 									{
-										"name":"category",
-										"label":"category",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "category",
+										"label": "category",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"maxGuests",
-										"label":"max guests",
-										"type":"number",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "maxGuests",
+										"label": "max guests",
+										"type": "number",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"price",
-										"label":"price in €",
-										"type":"number",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "price",
+										"label": "price in €",
+										"type": "number",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"size",
-										"label":"size in m²",
-										"type":"number",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "size",
+										"label": "size in m²",
+										"type": "number",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									}
 								]
 							},
-							"subSql":[
+							"subSql": [
 								{
-									"id":"get_roomCategory_equipment",
-									"title":"Equipment",
-									"label":"Get equipment",
-									"type":"table",
-									"description":"",
-									"sql":"SELECT rce.roomCategory_ID, eq.equipment_ID, eq.equipmentTitle AS equipment, rce.amount\nFROM view_roomCategory_equipment_[roomCategory_equipment] rce\nINNER JOIN view_equipment_[equipment] eq ON eq.equipment_ID = rce.equipment_ID\nWHERE roomCategory_ID = @roomCategory_ID;",
-									"params":[
+									"id": "get_roomCategory_equipment",
+									"title": "Equipment",
+									"label": "Get equipment",
+									"type": "table",
+									"description": "",
+									"sql": "@hotel_management_get_hotels_get_roomCategories_get_roomCategory_equipment_sql",
+									"params": [
 										{
-											"name":"roomCategory_ID",
-											"label":"room category ID",
-											"type":"text",
-											"placeholder":"RCT*****",
-											"required":true,
-											"readonly":true
+											"name": "roomCategory_ID",
+											"label": "room category ID",
+											"type": "text",
+											"placeholder": "RCT*****",
+											"required": true,
+											"readonly": true
 										}
 									],
-									"runOnSelect":true,
-									"insert":{
-										"title":"Add equipment",
-										"sql":"INSERT INTO view_roomCategory_equipment_[roomCategory_equipment] (roomCategory_ID, equipment_ID, amount)\nVALUES(@roomCategory_ID, @equipment_selection, @amount);",
-										"params":[
+									"runOnSelect": true,
+									"insert": {
+										"title": "Add equipment",
+										"sql": "@hotel_management_get_hotels_get_roomCategories_get_roomCategory_equipment_insert",
+										"params": [
 											{
-												"name":"roomCategory_ID",
-												"label":"room category ID",
-												"type":"text",
-												"placeholder":"RCT*****",
-												"required":true,
-												"readonly":true
+												"name": "roomCategory_ID",
+												"label": "room category ID",
+												"type": "text",
+												"placeholder": "RCT*****",
+												"required": true,
+												"readonly": true
 											},
 											{
-												"name":"amount",
-												"label":"amount",
-												"type":"number",
-												"placeholder":"",
-												"required":true,
-												"readonly":false
+												"name": "amount",
+												"label": "amount",
+												"type": "number",
+												"placeholder": "",
+												"required": true,
+												"readonly": false
 											},
 											{
-												"name":"equipment_selection",
-												"label":"equipment",
-												"type":"select",
-												"required":true,
-												"readonly":false,
-												"options":"SELECT equipment_ID, equipmentTitle FROM view_equipment_[equipment];"
+												"name": "equipment_selection",
+												"label": "equipment",
+												"type": "select",
+												"required": true,
+												"readonly": false,
+												"options": "@hotel_management_get_hotels_get_roomCategories_get_roomCategory_equipment_opt_equipment_selection"
 											}
 										]
 									},
-									"subSql":[
+									"subSql": [
 										{
-											"id":"update_roomCategory_equipment",
-											"title":"Change equipment amount",
-											"label":"Change equipment amount",
-											"type":"void",
-											"description":"",
-											"sql":"UPDATE view_roomCategory_equipment_[roomCategory_equipment]\nSET amount = @amount\nWHERE roomCategory_ID = @roomCategory_ID\n\tAND equipment_ID = @equipment_ID;",
-											"params":[
+											"id": "update_roomCategory_equipment",
+											"title": "Change equipment amount",
+											"label": "Change equipment amount",
+											"type": "void",
+											"description": "",
+											"sql": "@hotel_management_get_hotels_get_roomCategories_get_roomCategory_equipment_update_roomCategory_equipment_sql",
+											"params": [
 												{
-													"name":"roomCategory_ID",
-													"label":"room category ID",
-													"type":"text",
-													"placeholder":"RCT*****",
-													"required":true,
-													"readonly":true
+													"name": "roomCategory_ID",
+													"label": "room category ID",
+													"type": "text",
+													"placeholder": "RCT*****",
+													"required": true,
+													"readonly": true
 												},
 												{
-													"name":"equipment_ID",
-													"label":"equipment ID",
-													"type":"text",
-													"placeholder":"EQP*****",
-													"required":true,
-													"readonly":true
+													"name": "equipment_ID",
+													"label": "equipment ID",
+													"type": "text",
+													"placeholder": "EQP*****",
+													"required": true,
+													"readonly": true
 												},
 												{
-													"name":"amount",
-													"label":"amount",
-													"type":"number",
-													"placeholder":"",
-													"required":true,
-													"readonly":false
+													"name": "amount",
+													"label": "amount",
+													"type": "number",
+													"placeholder": "",
+													"required": true,
+													"readonly": false
 												}
 											],
-											"runOnSelect":false
+											"runOnSelect": false
 										},
 										{
-											"id":"remove_roomCategory_equipment",
-											"title":"Remove equipment",
-											"label":"Remove equipment",
-											"type":"void",
-											"description":"",
-											"sql":"DELETE FROM view_roomCategory_equipment_[roomCategory_equipment]\nWHERE roomCategory_ID = @roomCategory_ID\n\tAND equipment_ID = @equipment_ID;",
-											"params":[
+											"id": "remove_roomCategory_equipment",
+											"title": "Remove equipment",
+											"label": "Remove equipment",
+											"type": "void",
+											"description": "",
+											"sql": "@hotel_management_get_hotels_get_roomCategories_get_roomCategory_equipment_remove_roomCategory_equipment_sql",
+											"params": [
 												{
-													"name":"roomCategory_ID",
-													"label":"room category ID",
-													"type":"text",
-													"placeholder":"RCT*****",
-													"required":true,
-													"readonly":true
+													"name": "roomCategory_ID",
+													"label": "room category ID",
+													"type": "text",
+													"placeholder": "RCT*****",
+													"required": true,
+													"readonly": true
 												},
 												{
-													"name":"equipment_ID",
-													"label":"equipment ID",
-													"type":"text",
-													"placeholder":"EQP*****",
-													"required":true,
-													"readonly":true
+													"name": "equipment_ID",
+													"label": "equipment ID",
+													"type": "text",
+													"placeholder": "EQP*****",
+													"required": true,
+													"readonly": true
 												}
 											],
-											"runOnSelect":false
+											"runOnSelect": false
 										}
 									]
-								},							
-								{
-									"id":"update_roomCategory",
-									"title":"Update room category",
-									"label":"Update room category",
-									"type":"void",
-									"description":"",
-									"sql":"UPDATE view_roomCategory_[roomCategory]\nSET categoryTitle = @category,\n\tmaxGuests = @maxGuests,\n\tprice = @price,\n\t[size] = @size\nWHERE roomCategory_ID = @roomCategory_ID;",
-									"params":[
-										{
-											"name":"roomCategory_ID",
-											"label":"room category ID",
-											"type":"text",
-											"placeholder":"RCT*****",
-											"required":true,
-											"readonly":true
-										},
-										{
-											"name":"category",
-											"label":"category",
-											"type":"text",
-											"placeholder":"",
-											"required":true,
-											"readonly":false
-										},
-										{
-											"name":"maxGuests",
-											"label":"max guests",
-											"type":"number",
-											"placeholder":"",
-											"required":true,
-											"readonly":false
-										},
-										{
-											"name":"price",
-											"label":"price in €",
-											"type":"number",
-											"placeholder":"",
-											"required":true,
-											"readonly":false
-										},
-										{
-											"name":"size",
-											"label":"size in m²",
-											"type":"number",
-											"placeholder":"",
-											"required":true,
-											"readonly":false
-										}
-									],
-									"runOnSelect":false
 								},
 								{
-									"id":"delete_roomCategory",
-									"title":"Delete room category",
-									"label":"Delete room category",
-									"type":"void",
-									"description":"",
-									"sql":"DELETE FROM view_roomCategory_[roomCategory]\nWHERE roomCategory_ID = @roomCategory_ID;",
-									"params":[
+									"id": "update_roomCategory",
+									"title": "Update room category",
+									"label": "Update room category",
+									"type": "void",
+									"description": "",
+									"sql": "@hotel_management_get_hotels_get_roomCategories_update_roomCategory_sql",
+									"params": [
 										{
-											"name":"roomCategory_ID",
-											"label":"room category ID",
-											"type":"text",
-											"placeholder":"RCT*****",
-											"required":true,
-											"readonly":true
+											"name": "roomCategory_ID",
+											"label": "room category ID",
+											"type": "text",
+											"placeholder": "RCT*****",
+											"required": true,
+											"readonly": true
+										},
+										{
+											"name": "category",
+											"label": "category",
+											"type": "text",
+											"placeholder": "",
+											"required": true,
+											"readonly": false
+										},
+										{
+											"name": "maxGuests",
+											"label": "max guests",
+											"type": "number",
+											"placeholder": "",
+											"required": true,
+											"readonly": false
+										},
+										{
+											"name": "price",
+											"label": "price in €",
+											"type": "number",
+											"placeholder": "",
+											"required": true,
+											"readonly": false
+										},
+										{
+											"name": "size",
+											"label": "size in m²",
+											"type": "number",
+											"placeholder": "",
+											"required": true,
+											"readonly": false
 										}
 									],
-									"runOnSelect":false
+									"runOnSelect": false
+								},
+								{
+									"id": "delete_roomCategory",
+									"title": "Delete room category",
+									"label": "Delete room category",
+									"type": "void",
+									"description": "",
+									"sql": "@hotel_management_get_hotels_get_roomCategories_delete_roomCategory_sql",
+									"params": [
+										{
+											"name": "roomCategory_ID",
+											"label": "room category ID",
+											"type": "text",
+											"placeholder": "RCT*****",
+											"required": true,
+											"readonly": true
+										}
+									],
+									"runOnSelect": false
 								}
 							]
 						},
 						{
-							"id":"get_rooms",
-							"title":"Rooms",
-							"label":"Get rooms",
-							"type":"table",
-							"description":"",
-							"sql":"SELECT ro.hotel_ID, ro.roomNumber, ro.floor, rc.categoryTitle AS category,\n\tCASE\n\t\tWHEN EXISTS (\n\t\t\tSELECT 1 \n\t\t\tFROM view_room_reservation_[room_reservation] rr\n\t\t\tINNER JOIN view_reservation_[reservation] re ON rr.reservation_ID = re.reservation_ID\n\t\t\tWHERE rr.hotel_ID = ro.hotel_ID \n\t\t\t\tAND rr.roomNumber = ro.roomNumber\n\t\t\t\tAND re.status IN ('R', 'P')\n\t\t\t\tAND GETDATE() BETWEEN re.checkin AND re.checkout\n\t\t\t) THEN 'Occupied'\n\t\tWHEN EXISTS (\n\t\t\tSELECT 1 \n\t\t\tFROM view_room_reservation_[room_reservation] rr\n\t\t\tINNER JOIN view_reservation_[reservation] re ON rr.reservation_ID = re.reservation_ID\n\t\t\tWHERE rr.hotel_ID = ro.hotel_ID AND rr.roomNumber = ro.roomNumber\n\t\t\t\tAND re.status IN ('R', 'P')\n\t\t\t\tAND re.checkin > GETDATE()\n\t\t\t) THEN 'Reserved'\n\t\tELSE 'Free'\n\tEND AS room_status\nFROM view_room_[room] ro\nLEFT OUTER JOIN view_roomCategory_[roomCategory] rc ON ro.roomCategory_ID = rc.roomCategory_ID\nWHERE ro.hotel_ID = @hotel_ID\nORDER BY ro.floor, ro.roomNumber;",
-							"params":[
+							"id": "get_rooms",
+							"title": "Rooms",
+							"label": "Get rooms",
+							"type": "table",
+							"description": "",
+							"sql": "@hotel_management_get_hotels_get_rooms_sql",
+							"params": [
 								{
-									"name":"hotel_ID",
-									"label":"hotel ID",
-									"type":"text",
-									"placeholder":"HTL*****",
-									"required":true,
-									"readonly":true
+									"name": "hotel_ID",
+									"label": "hotel ID",
+									"type": "text",
+									"placeholder": "HTL*****",
+									"required": true,
+									"readonly": true
 								}
 							],
-							"runOnSelect":true,
-							"insert":{
-								"title":"Create new room",
-								"sql":"INSERT INTO view_room_[room] (hotel_ID, roomNumber, roomCategory_ID, floor)\nVALUES (@hotel_ID, @roomNumber, @roomCategory_selection, @floor)",
-								"params":[
+							"runOnSelect": true,
+							"insert": {
+								"title": "Create new room",
+								"sql": "@hotel_management_get_hotels_get_rooms_insert",
+								"params": [
 									{
-										"name":"hotel_ID",
-										"label":"hotel ID",
-										"type":"text",
-										"placeholder":"HTL*****",
-										"required":true,
-										"readonly":true
+										"name": "hotel_ID",
+										"label": "hotel ID",
+										"type": "text",
+										"placeholder": "HTL*****",
+										"required": true,
+										"readonly": true
 									},
 									{
-										"name":"roomNumber",
-										"label":"room number",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "roomNumber",
+										"label": "room number",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"floor",
-										"label":"floor",
-										"type":"number",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "floor",
+										"label": "floor",
+										"type": "number",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"roomCategory_selection",
-										"label":"room category",
-										"type":"select",
-										"required":true,
-										"readonly":false,
-										"options":"SELECT roomCategory_ID, categoryTitle FROM view_roomCategory_[roomCategory] WHERE hotel_ID = @hotel_ID;"
+										"name": "roomCategory_selection",
+										"label": "room category",
+										"type": "select",
+										"required": true,
+										"readonly": false,
+										"options": "@hotel_management_get_hotels_get_rooms_opt_roomCategory_selection"
 									}
 								]
 							},
-							"subSql":[
+							"subSql": [
 								{
-									"id":"update_room",
-									"title":"Update room",
-									"label":"Update room",
-									"type":"void",
-									"description":"",
-									"sql":"UPDATE view_room_[room]\nSET roomNumber = @newRoomNumber,\n\t[floor] = @floor,\n\troomCategory_ID = @roomCategory_selection\nWHERE hotel_ID = @hotel_ID\n\tAND roomNumber = @roomNumber;",
-									"params":[
+									"id": "update_room",
+									"title": "Update room",
+									"label": "Update room",
+									"type": "void",
+									"description": "",
+									"sql": "@hotel_management_get_hotels_get_rooms_update_room_sql",
+									"params": [
 										{
-											"name":"hotel_ID",
-											"label":"hotel ID",
-											"type":"text",
-											"placeholder":"HTL*****",
-											"required":true,
-											"readonly":true
+											"name": "hotel_ID",
+											"label": "hotel ID",
+											"type": "text",
+											"placeholder": "HTL*****",
+											"required": true,
+											"readonly": true
 										},
 										{
-											"name":"roomNumber",
-											"label":"room number",
-											"type":"text",
-											"placeholder":"",
-											"required":true,
-											"readonly":true
+											"name": "roomNumber",
+											"label": "room number",
+											"type": "text",
+											"placeholder": "",
+											"required": true,
+											"readonly": true
 										},
 										{
-											"name":"newRoomNumber",
-											"label":"new room number",
-											"type":"number",
-											"placeholder":"",
-											"required":true,
-											"readonly":false
+											"name": "newRoomNumber",
+											"label": "new room number",
+											"type": "number",
+											"placeholder": "",
+											"required": true,
+											"readonly": false
 										},
 										{
-											"name":"floor",
-											"label":"floor",
-											"type":"number",
-											"placeholder":"",
-											"required":true,
-											"readonly":false
+											"name": "floor",
+											"label": "floor",
+											"type": "number",
+											"placeholder": "",
+											"required": true,
+											"readonly": false
 										},
 										{
-											"name":"roomCategory_selection",
-											"label":"room category",
-											"type":"select",
-											"required":true,
-											"readonly":false,
-											"options":"SELECT roomCategory_ID, categoryTitle FROM view_roomCategory_[roomCategory] WHERE hotel_ID = @hotel_ID;"
+											"name": "roomCategory_selection",
+											"label": "room category",
+											"type": "select",
+											"required": true,
+											"readonly": false,
+											"options": "@hotel_management_get_hotels_get_rooms_update_room_opt_roomCategory_selection"
 										}
 									],
-									"runOnSelect":false
+									"runOnSelect": false
 								},
 								{
-									"id":"delete_room",
-									"title":"Delete room",
-									"label":"Delete room",
-									"type":"void",
-									"description":"",
-									"sql":"DELETE FROM view_room_[room]\nWHERE hotel_ID = @hotel_ID\n\tAND roomNumber = @roomNumber;",
-									"params":[
+									"id": "delete_room",
+									"title": "Delete room",
+									"label": "Delete room",
+									"type": "void",
+									"description": "",
+									"sql": "@hotel_management_get_hotels_get_rooms_delete_room_sql",
+									"params": [
 										{
-											"name":"hotel_ID",
-											"label":"hotel ID",
-											"type":"text",
-											"placeholder":"HTL*****",
-											"required":true,
-											"readonly":true
+											"name": "hotel_ID",
+											"label": "hotel ID",
+											"type": "text",
+											"placeholder": "HTL*****",
+											"required": true,
+											"readonly": true
 										},
 										{
-											"name":"roomNumber",
-											"label":"room number",
-											"type":"text",
-											"placeholder":"",
-											"required":true,
-											"readonly":true
+											"name": "roomNumber",
+											"label": "room number",
+											"type": "text",
+											"placeholder": "",
+											"required": true,
+											"readonly": true
 										}
 									],
-									"runOnSelect":false
+									"runOnSelect": false
 								}
 							]
 						},
 						{
-							"id":"get_additionalOptions",
-							"title":"Booking options",
-							"label":"Get additional options",
-							"type":"table",
-							"description":"",
-							"sql":"SELECT hotel_ID, additionalOptionTitle AS title, dbo.FN_FORMAT_PRICE(price) AS price\nFROM view_additionalOption_[additionalOption]\nWHERE hotel_ID = @hotel_ID;",
-							"params":[
+							"id": "get_additionalOptions",
+							"title": "Booking options",
+							"label": "Get additional options",
+							"type": "table",
+							"description": "",
+							"sql": "@hotel_management_get_hotels_get_additionalOptions_sql",
+							"params": [
 								{
-									"name":"hotel_ID",
-									"label":"hotel ID",
-									"type":"text",
-									"placeholder":"HTL*****",
-									"required":true,
-									"readonly":true
+									"name": "hotel_ID",
+									"label": "hotel ID",
+									"type": "text",
+									"placeholder": "HTL*****",
+									"required": true,
+									"readonly": true
 								}
 							],
-							"runOnSelect":true,
-							"insert":{
-								"title":"Create new additional booking option",
-								"sql":"INSERT INTO view_additionalOption_[additionalOption] (hotel_ID, additionalOptionTitle, price) \nVALUES (@hotel_ID, @title, @price);",
-								"params":[
+							"runOnSelect": true,
+							"insert": {
+								"title": "Create new additional booking option",
+								"sql": "@hotel_management_get_hotels_get_additionalOptions_insert",
+								"params": [
 									{
-										"name":"hotel_ID",
-										"label":"hotel ID",
-										"type":"text",
-										"placeholder":"HTL*****",
-										"required":true,
-										"readonly":true
+										"name": "hotel_ID",
+										"label": "hotel ID",
+										"type": "text",
+										"placeholder": "HTL*****",
+										"required": true,
+										"readonly": true
 									},
 									{
-										"name":"title",
-										"label":"title",
-										"type":"text",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "title",
+										"label": "title",
+										"type": "text",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									},
 									{
-										"name":"price",
-										"label":"price in €",
-										"type":"number",
-										"placeholder":"",
-										"required":true,
-										"readonly":false
+										"name": "price",
+										"label": "price in €",
+										"type": "number",
+										"placeholder": "",
+										"required": true,
+										"readonly": false
 									}
 								]
 							},
-							"subSql":[
+							"subSql": [
 								{
-									"id":"update_additionalOption",
-									"title":"Update booking option",
-									"label":"Update additional option",
-									"type":"void",
-									"description":"",
-									"sql":"UPDATE view_additionalOption_[additionalOption]\nSET additionalOptionTitle = @newTitle,\n\tprice = @price\nWHERE hotel_ID = @hotel_ID\n\tAND additionalOptionTitle = @title;",
-									"params":[
+									"id": "update_additionalOption",
+									"title": "Update booking option",
+									"label": "Update additional option",
+									"type": "void",
+									"description": "",
+									"sql": "@hotel_management_get_hotels_get_additionalOptions_update_additionalOption_sql",
+									"params": [
 										{
-											"name":"hotel_ID",
-											"label":"hotel ID",
-											"type":"text",
-											"placeholder":"HTL*****",
-											"required":true,
-											"readonly":true
+											"name": "hotel_ID",
+											"label": "hotel ID",
+											"type": "text",
+											"placeholder": "HTL*****",
+											"required": true,
+											"readonly": true
 										},
 										{
-											"name":"title",
-											"label":"title",
-											"type":"text",
-											"placeholder":"",
-											"required":true,
-											"readonly":true
+											"name": "title",
+											"label": "title",
+											"type": "text",
+											"placeholder": "",
+											"required": true,
+											"readonly": true
 										},
 										{
-											"name":"newTitle",
-											"label":"new title",
-											"type":"text",
-											"placeholder":"",
-											"required":true,
-											"readonly":false
+											"name": "newTitle",
+											"label": "new title",
+											"type": "text",
+											"placeholder": "",
+											"required": true,
+											"readonly": false
 										},
 										{
-											"name":"price",
-											"label":"price in €",
-											"type":"number",
-											"placeholder":"",
-											"required":true,
-											"readonly":false
+											"name": "price",
+											"label": "price in €",
+											"type": "number",
+											"placeholder": "",
+											"required": true,
+											"readonly": false
 										}
 									],
-									"runOnSelect":false
+									"runOnSelect": false
 								},
 								{
-									"id":"delete_additionalOption",
-									"title":"Delete booking option",
-									"label":"Delete additional option",
-									"type":"void",
-									"description":"",
-									"sql":"DELETE FROM view_additionalOption_[additionalOption]\nWHERE additionalOptionTitle = @title\n\tAND hotel_ID = @hotel_ID;",
-									"params":[
+									"id": "delete_additionalOption",
+									"title": "Delete booking option",
+									"label": "Delete additional option",
+									"type": "void",
+									"description": "",
+									"sql": "@hotel_management_get_hotels_get_additionalOptions_delete_additionalOption_sql",
+									"params": [
 										{
-											"name":"hotel_ID",
-											"label":"hotel ID",
-											"type":"text",
-											"placeholder":"HTL*****",
-											"required":true,
-											"readonly":true
+											"name": "hotel_ID",
+											"label": "hotel ID",
+											"type": "text",
+											"placeholder": "HTL*****",
+											"required": true,
+											"readonly": true
 										},
 										{
-											"name":"title",
-											"label":"title",
-											"type":"text",
-											"placeholder":"",
-											"required":true,
-											"readonly":true
+											"name": "title",
+											"label": "title",
+											"type": "text",
+											"placeholder": "",
+											"required": true,
+											"readonly": true
 										}
 									],
-									"runOnSelect":false
+									"runOnSelect": false
 								}
 							]
 						},
 						{
-							"id":"get_reservations",
-							"title":"Reservations",
-							"label":"Get reservations",
-							"type":"table",
-							"description":"",
-							"sql":"SELECT DISTINCT re.reservation_ID, dbo.FN_FORMAT_PRICE(dbo.FN_GET_RESERVATION_PRICE(re.reservation_ID)) AS totalPrice, re.checkin, re.checkout, re.guests, dbo.FN_STATUS_DETAILS(re.[status]) AS [status], dbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS fullName, cu.phoneNumber, cu.email,\n\tCASE\n\t\tWHEN re.checkin > GETDATE() THEN 'Upcoming'\n\t\tWHEN re.checkout > GETDATE() THEN 'Current'\n\t\tWHEN re.checkout < GETDATE() THEN 'Prior'\n\t\tELSE 'Invalid'\n\tEND AS reservation_category\nFROM view_reservation_[reservation] re\nINNER JOIN view_room_reservation_[room_reservation] rr ON rr.reservation_ID = re.reservation_ID\nINNER JOIN view_customer_[customer] cu ON cu.customer_ID = re.customer_ID\nWHERE rr.hotel_ID = @hotel_ID\nORDER BY re.checkout DESC;",
-							"params":[
+							"id": "get_reservations",
+							"title": "Reservations",
+							"label": "Get reservations",
+							"type": "table",
+							"description": "",
+							"sql": "@hotel_management_get_hotels_get_reservations_sql",
+							"params": [
 								{
-									"name":"hotel_ID",
-									"label":"hotel ID",
-									"type":"text",
-									"placeholder":"HTL*****",
-									"required":true,
-									"readonly":true
+									"name": "hotel_ID",
+									"label": "hotel ID",
+									"type": "text",
+									"placeholder": "HTL*****",
+									"required": true,
+									"readonly": true
 								}
 							],
-							"runOnSelect":true,
-							"subSql":[
+							"runOnSelect": true,
+							"subSql": [
 								{
-									"id":"create_print_invoice",
-									"title":"Create / Print invoice",
-									"label":"Print invoice",
-									"type":"table",
-									"description":"",
-									"sql":"SELECT DISTINCT iv.reservation_ID AS invoice_ID,\n\tdbo.FN_FORMAT_PRICE(iv.totalPrice) AS totalPrice,\n\tiv.invoiceDate,\n\tdbo.FN_FULL_NAME(cu.firstName, cu.lastName) AS fullName,\n\ta1.streetAddress AS customerStreetAddress,\n\ta1.city AS customerCity,\n\ta1.country AS customerCountry,\n\tho.hotelName,\n\ta2.streetAddress AS hotelStreetAddress,\n\ta2.city AS hotelCity,\n\ta2.country AS hotelCountry\nFROM view_invoice_[invoice] iv\nINNER JOIN view_reservation_[reservation] re ON iv.reservation_ID = re.reservation_ID\nINNER JOIN view_customer_[customer] cu ON re.customer_ID = cu.customer_ID\nINNER JOIN view_address_[address] a1 ON iv.address_ID = a1.address_ID\nINNER JOIN view_room_reservation_[room_reservation] rr ON re.reservation_ID = rr.reservation_ID\nINNER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID\nINNER JOIN view_address_[address] a2 ON ho.address_ID = a2.address_ID\nWHERE iv.reservation_ID = @reservation_ID;",
-									"params":[
+									"id": "create_print_invoice",
+									"title": "Create / Print invoice",
+									"label": "Print invoice",
+									"type": "table",
+									"description": "",
+									"sql": "@hotel_management_get_hotels_get_reservations_create_print_invoice_sql",
+									"params": [
 										{
-											"name":"reservation_ID",
-											"label":"reservation ID",
-											"type":"text",
-											"placeholder":"RES*****",
-											"required":true,
-											"readonly":true
+											"name": "reservation_ID",
+											"label": "reservation ID",
+											"type": "text",
+											"placeholder": "RES*****",
+											"required": true,
+											"readonly": true
 										}
 									],
-									"runOnSelect":true,
-									"insert":{
-										"title":"Create invoice",
-										"sql":"INSERT INTO view_invoice_[invoice] (reservation_ID, address_ID)\nVALUES (@reservation_ID,(SELECT TOP 1 address_ID FROM view_customer_[customer] WHERE customer_ID = (SELECT TOP 1 customer_ID FROM view_reservation_[reservation] WHERE reservation_ID = @reservation_ID)));",
-										"params":[
+									"runOnSelect": true,
+									"insert": {
+										"title": "Create invoice",
+										"sql": "@hotel_management_get_hotels_get_reservations_create_print_invoice_insert",
+										"params": [
 											{
-												"name":"reservation_ID",
-												"label":"reservation ID",
-												"type":"text",
-												"placeholder":"RES*****",
-												"required":true,
-												"readonly":true
+												"name": "reservation_ID",
+												"label": "reservation ID",
+												"type": "text",
+												"placeholder": "RES*****",
+												"required": true,
+												"readonly": true
 											}
 										]
 									}
 								},
 								{
-									"id":"delete_invoice",
-									"title":"Remove invoice",
-									"label":"Remove invoice",
-									"type":"void",
-									"description":"",
-									"sql":"DELETE FROM view_invoice_[invoice] WHERE reservation_ID = @reservation_ID",
-									"params":[
+									"id": "delete_invoice",
+									"title": "Remove invoice",
+									"label": "Remove invoice",
+									"type": "void",
+									"description": "",
+									"sql": "@hotel_management_get_hotels_get_reservations_delete_invoice_sql",
+									"params": [
 										{
-											"name":"reservation_ID",
-											"label":"reservation ID",
-											"type":"text",
-											"placeholder":"RES*****",
-											"required":true,
-											"readonly":true
+											"name": "reservation_ID",
+											"label": "reservation ID",
+											"type": "text",
+											"placeholder": "RES*****",
+											"required": true,
+											"readonly": true
 										}
 									],
-									"runOnSelect":false
+									"runOnSelect": false
 								},
 								{
-									"id":"cancel_reservation_hotel_staff",
-									"title":"Cancel reservation",
-									"label":"Cancel reservation",
-									"type":"void",
-									"description":"",
-									"sql":"UPDATE view_reservation_[reservation]\nSET status = 'C'\nWHERE reservation_ID = @reservation_ID\n\tAND status = 'R'",
-									"params":[
+									"id": "cancel_reservation_hotel_staff",
+									"title": "Cancel reservation",
+									"label": "Cancel reservation",
+									"type": "void",
+									"description": "",
+									"sql": "@hotel_management_get_hotels_get_reservations_cancel_reservation_hotel_staff_sql",
+									"params": [
 										{
-											"name":"reservation_ID",
-											"label":"reservation ID",
-											"type":"text",
-											"placeholder":"RES*****",
-											"required":true,
-											"readonly":true
+											"name": "reservation_ID",
+											"label": "reservation ID",
+											"type": "text",
+											"placeholder": "RES*****",
+											"required": true,
+											"readonly": true
 										}
 									],
-									"runOnSelect":false					
-								}							
+									"runOnSelect": false
+								}
 							]
 						},
 						{
-    						"id": "room_booking_rank",
-    						"title": "Statistics: Room Category Booking Rank",
-    						"label":"Load room category booking ranking",
-    						"type": "table",
-    						"description": "",
-    						"sql": "SELECT rc.roomCategory_ID, rc.categoryTitle AS category, dbo.FN_FORMAT_PRICE(rc.price) AS price,\n\tCOUNT(rr.reservation_ID) AS total_bookings,\n\tRANK() OVER (ORDER BY COUNT(rr.reservation_ID) DESC) AS booking_rank\nFROM view_roomCategory_[roomCategory] rc\nLEFT OUTER JOIN view_room_[room] ro ON ro.roomCategory_ID = rc.roomCategory_ID\nLEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON rr.hotel_ID = ro.hotel_ID\n\tAND rr.roomNumber = ro.roomNumber\nWHERE rc.hotel_ID = @hotel_ID\nGROUP BY rc.roomCategory_ID, rc.categoryTitle, rc.price\nORDER BY booking_rank ASC;",
-    						"params": [
-        						{
-            						"name": "hotel_ID",
-            						"label": "hotel ID",
-            						"type": "text",
-            						"placeholder": "HTL*****",
-            						"required": true,
-           							"readonly": true
-        						}
-    						],
-    						"runOnSelect": true
-						},
-						{
-    						"id": "peak_checkin_days",
-    						"title": "Statistics: Peak Check-In Days",
-    						"label":"Load check-in day popularity",
-    						"type": "table",
-    						"description": "",
-    						"sql": "WITH AllWeekdays AS (\n\tSELECT 1 AS day_number, 'Monday' AS weekday\n\tUNION ALL SELECT 2, 'Tuesday'\n\tUNION ALL SELECT 3, 'Wednesday'\n\tUNION ALL SELECT 4, 'Thursday'\n\tUNION ALL SELECT 5, 'Friday'\n\tUNION ALL SELECT 6, 'Saturday'\n\tUNION ALL SELECT 7, 'Sunday'\n), HotelReservations AS (\n\tSELECT re.reservation_ID, DATENAME(weekday, re.checkin) AS weekday\n\tFROM view_reservation_[reservation] re\n\tINNER JOIN view_room_reservation_[room_reservation] rr ON rr.reservation_ID = re.reservation_ID\n\tWHERE rr.hotel_ID = @hotel_ID\n)\nSELECT aw.weekday, COUNT(DISTINCT hr.reservation_ID) AS total_reservations,\n\tRANK() OVER (ORDER BY COUNT(DISTINCT hr.reservation_ID) DESC) AS checkin_popularity_rank\nFROM AllWeekdays aw\nLEFT OUTER JOIN HotelReservations hr ON aw.weekday = hr.weekday\nGROUP BY aw.weekday;",
-    						"params": [
-        						{
-            						"name": "hotel_ID",
-            						"label": "hotel ID",
-            						"type": "text",
-            						"placeholder": "HTL*****",
-            						"required": true,
-            						"readonly": true
-        						}
-    						],
-    						"runOnSelect": true
-						},
-						{
-							"id":"delete_hotel",
-							"title":"Delete hotel",
-							"label":"Delete hotel",
-							"type":"void",
-							"description":"",
-							"sql":"DELETE FROM view_hotel_[hotel]\nWHERE hotel_ID = @hotel_ID;",
-							"params":[
+							"id": "room_booking_rank",
+							"title": "Statistics: Room Category Booking Rank",
+							"label": "Load room category booking ranking",
+							"type": "table",
+							"description": "",
+							"sql": "@hotel_management_get_hotels_room_booking_rank_sql",
+							"params": [
 								{
-									"name":"hotel_ID",
-									"label":"hotel ID",
-									"type":"text",
-									"placeholder":"HTL*****",
-									"required":true,
-									"readonly":true
+									"name": "hotel_ID",
+									"label": "hotel ID",
+									"type": "text",
+									"placeholder": "HTL*****",
+									"required": true,
+									"readonly": true
 								}
 							],
-							"runOnSelect":false
+							"runOnSelect": true
+						},
+						{
+							"id": "peak_checkin_days",
+							"title": "Statistics: Peak Check-In Days",
+							"label": "Load check-in day popularity",
+							"type": "table",
+							"description": "",
+							"sql": "@hotel_management_get_hotels_peak_checkin_days_sql",
+							"params": [
+								{
+									"name": "hotel_ID",
+									"label": "hotel ID",
+									"type": "text",
+									"placeholder": "HTL*****",
+									"required": true,
+									"readonly": true
+								}
+							],
+							"runOnSelect": true
+						},
+						{
+							"id": "delete_hotel",
+							"title": "Delete hotel",
+							"label": "Delete hotel",
+							"type": "void",
+							"description": "",
+							"sql": "@hotel_management_get_hotels_delete_hotel_sql",
+							"params": [
+								{
+									"name": "hotel_ID",
+									"label": "hotel ID",
+									"type": "text",
+									"placeholder": "HTL*****",
+									"required": true,
+									"readonly": true
+								}
+							],
+							"runOnSelect": false
 						}
 					]
 				}

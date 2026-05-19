@@ -10,7 +10,8 @@ const path = require("path");
 const app = express();
 
 const PORT = process.env.PORT;
-const SQL_COMMANDS = require("./sql-commands.json");
+//const SQL_COMMANDS = require("./sql-commands.json");
+const SQL_COMMANDS = require("./load-sql")();
 
 // App setup
 app.use(express.json());
