@@ -214,12 +214,13 @@ createApp({
 
 			for (let [key, value] of Object.entries(params)) {
 				const p = this.currentQuery.params.find(p => p.name === key);
+				const cleaned = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.]/g, '')) : value;
 				if (p) {
-					if (p.type === 'number') value = parseFloat(String(value).replace(/[^0-9.]/g, ''));
-					p.type === 'select' ? (this.selectValues[key] = String(value)) : (this.paramValues[key] = value);
+					const converted = p.type === 'number' && !isNaN(cleaned) ? cleaned : value;
+					p.type === 'select' ? (this.selectValues[key] = String(converted)) : (this.paramValues[key] = converted);
 				} else {
 					this.selectLabelDefaults[key] = value;
-					this.paramValues[key] = value;
+					this.paramValues[key] = !isNaN(cleaned) && String(value) !== String(cleaned) ? cleaned : value;
 				}
 			}
 
@@ -300,7 +301,7 @@ createApp({
 		},
 
 		highlightSql(query) {
-			const keywords = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','LIKE','BETWEEN','IS','NULL','ORDER','BY','ASC','DESC','GROUP','HAVING','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','ON','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','DROP','ALTER','ADD','IDENTITY','PRIMARY','KEY','DEFAULT','GETDATE','TOP','DISTINCT','AS','COUNT','SUM','AVG','MIN','MAX','IF','OBJECT_ID','WITH','CASE','WHEN','THEN','ELSE','END','CONCAT','COALESCE','EXCEPT','OVER','DENSE_RANK','ROW_NUMBER','STRING_AGG','YEAR', 'EXEC'];
+			const keywords = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','LIKE','BETWEEN','IS','NULL','ORDER','BY','ASC','DESC','GROUP','HAVING','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','ON','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','DROP','ALTER','ADD','IDENTITY','PRIMARY','KEY','DEFAULT','GETDATE','TOP','DISTINCT','AS','COUNT','SUM','AVG','MIN','MAX','IF','OBJECT_ID','WITH','CASE','WHEN','THEN','ELSE','END','CONCAT','COALESCE','EXCEPT','UNION','OVER','DENSE_RANK','ROW_NUMBER','STRING_AGG','YEAR', 'EXEC'];
 			const rawSql = typeof query.sql === 'string' && query.sql.startsWith('@')
 				? (this.sqlMap[query.sql.slice(1)] ?? query.sql)
 			    : String(query.sql);
