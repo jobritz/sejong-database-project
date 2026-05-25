@@ -18,6 +18,7 @@ import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 import loadSqlCommands from './load-sql.js';
+import { replaceViewplaceholders } from './frontend/viewplaceholders.js';
 
 const app = express();
 
@@ -94,6 +95,18 @@ app.post('/api/auth/login', async (req, res) => {
 	}
 });
 
+// Get current DB role
+app.get('/api/auth/role', requireAuth, async (req, res) => {
+    const sql = SQL_COMMANDS.sqlMap['get_current_role'];
+    const pool = connections[req.session.id];
+    try {
+        const result = await pool.request().query(sql);
+        res.json({ role: String(Object.values(result.recordset[0])[0]) });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
+});
+
 // Logout
 app.post('/api/auth/logout', async (req, res) => {
 	if (connections[req.session.id]) {
@@ -123,10 +136,13 @@ function requireAuth(req, res, next) {
 
 // SQL Execute Endpoint
 app.post('/api/sql/execute', requireAuth, async (req, res) => {
-	const { query } = req.body;
-	const params = req.body.params ?? {};
-	if (!query) return res.status(400).json({ error: 'No query provided.' });
-
+	const { queryKey, params = {}, role = '' } = req.body;
+	if (!queryKey) return res.status(400).json({ error: 'No queryKey provided.' });
+	const key = queryKey.startsWith('@') ? queryKey.slice(1) : queryKey;
+	let query = SQL_COMMANDS.sqlMap[key];
+	if (!query) return res.status(400).json({ error: `Unknown query key: "${key}"` });
+	query = replaceViewplaceholders(query, SQL_COMMANDS.viewplaceholders, role, req.session.user.username);
+	
 	const pool = connections[req.session.id];
 	try {
 		const request = pool.request();

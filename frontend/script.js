@@ -1,3 +1,5 @@
+import { replaceViewplaceholders as _replaceViewplaceholders } from '/viewplaceholders.js';
+
 const { createApp } = Vue;
 
 createApp({
@@ -10,6 +12,7 @@ createApp({
 			loginLoading: false,
 			loginError: '',
 			viewplaceholders: {},
+			sqlMap: {},
 			categories: [],
 			currentCat: null,
 			currentQuery: null,
@@ -47,22 +50,16 @@ createApp({
 	watch: {
 		loggedIn(val) {
 			if (!val) return;
-			
-			const sql =`SELECT DP1.name AS RoleName 
-				FROM sys.database_role_members AS DRM 
-				INNER JOIN sys.database_principals AS DP1 ON DRM.role_principal_id = DP1.principal_id 
-				INNER JOIN sys.database_principals AS DP2 ON DRM.member_principal_id = DP2.principal_id 
-				WHERE DP2.name = USER_NAME();`
-			const init = () => 
-				this.executeSql(sql, {})
+			const init = () =>
+				fetch('api/auth/role', { headers: { 'Content-Type': 'application/json' } })
+					.then(res => res.json())
 					.then(data => {
-						this.currentRole = String(Object.values(data.recordset[0])[0]);
+						this.currentRole = data.role;
 						this.selectCategory(this.visibleCategories[0]);
 						this.autoSelect = this.currentRole !== 'system_admin';
 						this.selectQuery(this.currentCat.commands[0]);
 					})
-					.catch(e => console.error(e));
-						
+								
 			if (this.categories.length > 0) {
 				init();
 			} else {
@@ -81,6 +78,7 @@ createApp({
 				.then(res => res.json())
 				.then(data => {
 					this.viewplaceholders = data.viewplaceholders ? data.viewplaceholders : {};
+					this.sqlMap = data.sqlMap ?? {};
 					if (Array.isArray(data.categories)) this.categories = data.categories; 
 				})
 				.catch(e => console.error(e));
@@ -290,28 +288,23 @@ createApp({
 		},
 		
 		async executeSql(sql, params) {
-			sql = this.replaceViewplaceholders(sql);
 			return fetch('/api/sql/execute', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ query: sql, params: params })
+				body: JSON.stringify({ queryKey: sql, params: params, role: this.currentRole })
 			}).then(res => res.json());
 		},
 		
 		replaceViewplaceholders(sql) {
-			if(Object.keys(this.viewplaceholders).length > 0 && this.currentRole !== '') {		
-				for (const v of this.viewplaceholders[this.currentRole]) {
-					let regex = new RegExp(String.raw`\[${v.tablename}\]`, 'g');
-					if (v.base === 'user') sql = sql.replace(regex, this.currentUser);
-					if (v.base === 'role') sql = sql.replace(regex, this.currentRole);
-				}
-			}
-			return sql;
+			return _replaceViewplaceholders(sql, this.viewplaceholders, this.currentRole, this.currentUser);	
 		},
 
 		highlightSql(query) {
 			const keywords = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','LIKE','BETWEEN','IS','NULL','ORDER','BY','ASC','DESC','GROUP','HAVING','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','ON','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','DROP','ALTER','ADD','IDENTITY','PRIMARY','KEY','DEFAULT','GETDATE','TOP','DISTINCT','AS','COUNT','SUM','AVG','MIN','MAX','IF','OBJECT_ID','WITH','CASE','WHEN','THEN','ELSE','END','CONCAT','COALESCE','EXCEPT','OVER','DENSE_RANK','ROW_NUMBER','STRING_AGG','YEAR', 'EXEC'];
-			let out = String(query.sql).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+			const rawSql = typeof query.sql === 'string' && query.sql.startsWith('@')
+				? (this.sqlMap[query.sql.slice(1)] ?? query.sql)
+			    : String(query.sql);
+			let out = rawSql.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 			out = out.replace(/(@\w+)/g, '<span class="sql-param">$1</span>');
 			out = out.replace(/'([^']*)'/g, "<span class='sql-str'>'$1'</span>");
 			out = this.replaceViewplaceholders(out);

@@ -30,30 +30,8 @@ function parseSqlFile(filepath) {
     return map;
 }
 
-// Recursively replace every '@key' string in obj using sqlMap
-function hydrate(obj, sqlMap) {
-    if (typeof obj === 'string') {
-        if (obj.startsWith('@')) {
-            const key = obj.slice(1);
-            if (!(key in sqlMap)) {
-                console.warn(`[load-sql] Missing key in queries.sql: "${key}"`);
-                return obj;
-            }
-            return sqlMap[key];
-        }
-        return obj;
-    }
-    if (Array.isArray(obj)) return obj.map(item => hydrate(item, sqlMap));
-    if (obj !== null && typeof obj === 'object') {
-        const out = {};
-        for (const [k, v] of Object.entries(obj)) out[k] = hydrate(v, sqlMap);
-        return out;
-    }
-    return obj;
-}
-
 export default function loadSqlCommands() {
     const sqlMap = parseSqlFile(SQL_FILE);
     const raw = JSON.parse(readFileSync(JSON_FILE, 'utf8'));
-    return hydrate(raw, sqlMap);
+    return { ...raw, sqlMap };
 };

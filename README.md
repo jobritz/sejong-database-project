@@ -114,7 +114,8 @@ project/
 └── frontend/
     ├── index.html          # Vue 3 SPA shell
     ├── style.css           # Design system & component styles
-    └── script.js           # Vue 3 application logic
+    ├── script.js           # Vue 3 application logic
+    └── viewplaceholders.js # Shared view-substitution helper (used by both server and client)
 ```
 
 ---
@@ -129,20 +130,12 @@ Sessions expire after **1 hour** (configurable via `cookie.maxAge`).
 
 ### Role-Based Views
 
-After login, the frontend queries the user's database roles:
-
-```sql
-SELECT DP1.name AS RoleName
-FROM sys.database_role_members AS DRM
-INNER JOIN sys.database_principals AS DP1 ON DRM.role_principal_id = DP1.principal_id
-INNER JOIN sys.database_principals AS DP2 ON DRM.member_principal_id = DP2.principal_id
-WHERE DP2.name = USER_NAME();
-```
+After login, the app fetches the user's database role from the dedicated `/api/auth/role` endpoint, which runs the role-detection query server-side.
 
 The role (`system_admin`, `hotel_staff`, or `customer`) drives two things:
 
 1. **Visible categories** — each category in `sql-commands.json` declares a `visibility` array.
-2. **View substitution** — every SQL query uses placeholder table names like `[reservation]`. Before execution, the client replaces them with the correct view name (e.g. `view_reservation_customer` or `view_reservation_hotel_staff`) depending on `viewplaceholders` in `sql-commands.json`. This enforces row-level security at the database view layer.
+2. **View substitution** — every SQL query uses placeholder table names like `[reservation]`. Before execution, the server replaces them with the correct view name (e.g. `view_reservation_customer` or `view_reservation_hotel_staff`) depending on `viewplaceholders` in `sql-commands.json`. The replacement logic lives in `frontend/viewplaceholders.js`, a shared ES module imported by both the server and the browser (the latter uses it for display only).
 
 ### SQL Command Registry
 
@@ -177,7 +170,9 @@ FROM view_customer_[customer] cu
 
 ```js
 // server.js
-const SQL_COMMANDS = require("./load-sql")();
+const SQL_COMMANDS = loadSqlCommands();
+// SQL_COMMANDS contains { categories, viewplaceholders, sqlMap }
+// sqlMap is also sent to the frontend via /api/categories for SQL display purposes
 ```
 
 The loader handles all four locations where SQL appears: `sql` (string or KPI array of `{title, sql}` objects), `insert.sql`, and `params[].options` for select-type inputs. It warns to the console if a `@key` reference has no matching section in `queries.sql`.
@@ -199,6 +194,7 @@ The Vue app maintains a `navStack` array. Clicking a result row pushes the curre
 | `POST` | `/api/auth/login` | No | Open a DB connection with supplied credentials |
 | `POST` | `/api/auth/logout` | No | Close the DB connection and destroy the session |
 | `GET` | `/api/auth/status` | No | Return current session state |
+| `GET`  | `/api/auth/role`     | Yes | Return the current user's database role 
 | `POST` | `/api/sql/execute` | Yes | Execute a parameterised SQL query |
 | `GET` | `/api/categories` | No | Return the full hydrated `sql-commands.json` payload |
 
@@ -206,12 +202,13 @@ The Vue app maintains a `navStack` array. Clicking a result row pushes the curre
 
 ```json
 {
-  "query": "SELECT * FROM view_customer_customer WHERE customer_ID LIKE @id",
-  "params": { "id": "CUS%" }
+  "queryKey": "@customer_management_get_customers_sql",
+  "params": { "id": "CUS%" },
+  "role": "customer"
 }
 ```
 
-All parameters are bound as `NVARCHAR` to prevent SQL injection. The query string itself originates from `queries.sql` (loaded server-side at startup); ensure that file is not user-editable in production.
+The client sends only a `@key` reference — never raw SQL. The server resolves the key against `sqlMap` (built from `queries.sql` at startup), applies viewplaceholder substitution using `role` and the session username, then executes the parameterised query. All parameter values are bound as `NVARCHAR`. Ensure `queries.sql` is not user-editable in production.
 
 ---
 
