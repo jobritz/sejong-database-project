@@ -1,4 +1,4 @@
-import { replaceViewplaceholders as _replaceViewplaceholders } from '/viewplaceholders.js';
+import { replaceViewplaceholders } from '/viewplaceholders.js';
 
 const { createApp } = Vue;
 
@@ -41,15 +41,20 @@ createApp({
 		},
 		mergedParams() {
 			const result = {};
-			for (const [k, v] of Object.entries(this.paramValues))
-				if (!Array.isArray(v)) result[k] = v;
+			for (const [k, v] of Object.entries(this.paramValues)) {
+				if (!Array.isArray(v)) {
+					result[k] = v;
+				}
+			}
 			return { ...result, ...this.selectValues };
 		}
 	},
 
 	watch: {
 		loggedIn(val) {
-			if (!val) return;
+			if (!val) {
+				return;
+			}
 			const init = () =>
 				fetch('api/auth/role', { headers: { 'Content-Type': 'application/json' } })
 					.then(res => res.json())
@@ -64,7 +69,9 @@ createApp({
 				init();
 			} else {
 				const unwatch = this.$watch('categories', cats => {
-					if (cats.length === 0) return;
+					if (cats.length === 0) {
+						return;
+					}
 					unwatch();
 					init();
 				});
@@ -77,9 +84,11 @@ createApp({
 			fetch('/api/categories', { headers: { 'Content-Type': 'application/json' } })
 				.then(res => res.json())
 				.then(data => {
-					this.viewplaceholders = data.viewplaceholders ? data.viewplaceholders : {};
+					this.viewplaceholders = data.viewplaceholders ?? {};
 					this.sqlMap = data.sqlMap ?? {};
-					if (Array.isArray(data.categories)) this.categories = data.categories; 
+					if (Array.isArray(data.categories)) {
+						this.categories = data.categories;
+					} 
 				})
 				.catch(e => console.error(e));
 		},
@@ -106,8 +115,9 @@ createApp({
 			})
 				.then(res => res.json())
 				.then(data => {
-					if (data.error) this.loginError = data.error;
-					else if (data.user?.username) {
+					if (data.error) {
+						this.loginError = data.error;
+					} else if (data.user?.username) {
 						this.loggedIn = true;
 						this.currentUser = data.user.username;
 					}
@@ -151,7 +161,9 @@ createApp({
 			this.inSubQuery = false;
 			this.subBase = false;
 			this.autoSelect = false;
-			if(cat.commands?.length > 0) this.selectQuery(this.currentCat.commands[0]);
+			if(cat.commands?.length > 0) {
+				this.selectQuery(this.currentCat.commands[0]);
+			}
 		},
 
 		selectQuery(query) {
@@ -169,21 +181,30 @@ createApp({
 				}
 			}
 			this.loadSelectOptions(query.params);
-			if (query.insert) this.loadSelectOptions(query.insert.params);
+			if (query.insert) {
+				this.loadSelectOptions(query.insert.params);
+			}
 			if (query.runOnSelect) {
-				if (query.type === 'kpi') this.runKpiQueries(query);
-				else if (query.type === 'table') this.runQuery(query);
+				if (query.type === 'kpi') {
+					this.runKpiQueries(query);
+				} else if (query.type === 'table') {
+					this.runQuery(query);
+				}
 			}
 		},
 
 		loadSelectOptions(params) {
 			for (const p of params) {
-				if (p.type !== 'select') continue;
+				if (p.type !== 'select') {
+					continue;
+				}
 				delete this.paramValues[p.name];
 				this.executeSql(p.options, this.mergedParams)
 					.then(data => {
 						this.paramValues[p.name] = data.recordset;
-						if (this.selectValues[p.name] !== undefined) return;
+						if (this.selectValues[p.name] !== undefined) {
+							return;
+						}
 						const match = data.recordset.find(o =>
 							Object.values(this.selectLabelDefaults).includes(String(Object.values(o)[1]))
 						);
@@ -196,7 +217,9 @@ createApp({
 		},
 
 		drillDown(subQueries, params) {
-			if (!subQueries?.length) return;
+			if (!subQueries?.length) {
+				return;
+			}
 			this.navStack.push({
 				commands: [...this.currentCat.commands],
 				query: this.currentQuery,
@@ -209,9 +232,11 @@ createApp({
 			this.selectLabelDefaults = {};
 
 			const allParams = [...this.currentQuery.params, ...(this.currentQuery.insert?.params ?? [])];
-			for (const p of allParams)
-				if (p.type === 'select') delete this.selectValues[p.name];
-
+			for (const p of allParams) {
+				if (p.type === 'select') {
+					delete this.selectValues[p.name];
+				}
+			}
 			for (let [key, value] of Object.entries(params)) {
 				const p = this.currentQuery.params.find(p => p.name === key);
 				const cleaned = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.]/g, '')) : value;
@@ -225,11 +250,15 @@ createApp({
 			}
 
 			for (const p of this.currentQuery.params) {
-				if (p.readonly || p.type === 'select') continue;
+				if (p.readonly || p.type === 'select') {
+					continue;
+				}
 				const src = p.name.replace(/^new([A-Z])/, (_, c) => c.toLowerCase());
 				if (src !== p.name && params[src] !== undefined) {
 					let val = params[src];
-					if (p.type === 'number') val = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+					if (p.type === 'number') {
+						val = parseFloat(String(val).replace(/[^0-9.]/g, ''));
+					}
 					this.paramValues[p.name] = val;
 				}
 			}
@@ -238,7 +267,9 @@ createApp({
 		},
 
 		goBack() {
-			if (!this.navStack.length) return;
+			if (!this.navStack.length) {
+				return;
+			}
 			const prev = this.navStack.pop();
 			this.currentCat.commands = prev.commands;
 			this.paramValues = { ...prev.paramValues };
@@ -246,7 +277,9 @@ createApp({
 			this.queryResult = null;
 			this.currentQuery = prev.query;
 			this.inSubQuery = this.navStack.length > 0 || this.subBase;
-			if (prev.query.runOnSelect) this.runQuery(prev.query);
+			if (prev.query.runOnSelect) {
+				this.runQuery(prev.query);
+			}
 		},
 
 		runQuery(query) {
@@ -265,7 +298,9 @@ createApp({
 					}
 					if (this.currentQuery.insert?.sql === query.sql && this.currentQuery.runOnSelect) {
 						for (const p of this.currentQuery.insert.params) {
-							if (!p.readonly) this.paramValues[p.name] = '';
+							if (!p.readonly) {
+								this.paramValues[p.name] = '';
+							}
 						}
 						this.selectQuery(this.currentQuery);
 					}
@@ -296,10 +331,6 @@ createApp({
 			}).then(res => res.json());
 		},
 		
-		replaceViewplaceholders(sql) {
-			return _replaceViewplaceholders(sql, this.viewplaceholders, this.currentRole, this.currentUser);	
-		},
-
 		highlightSql(query) {
 			const keywords = ['SELECT','FROM','WHERE','AND','OR','NOT','IN','LIKE','BETWEEN','IS','NULL','ORDER','BY','ASC','DESC','GROUP','HAVING','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','ON','INSERT','INTO','VALUES','UPDATE','SET','DELETE','CREATE','TABLE','DROP','ALTER','ADD','IDENTITY','PRIMARY','KEY','DEFAULT','GETDATE','TOP','DISTINCT','AS','COUNT','SUM','AVG','MIN','MAX','IF','OBJECT_ID','WITH','CASE','WHEN','THEN','ELSE','END','CONCAT','COALESCE','EXCEPT','UNION','OVER','DENSE_RANK','ROW_NUMBER','STRING_AGG','YEAR', 'EXEC'];
 			const rawSql = typeof query.sql === 'string' && query.sql.startsWith('@')
@@ -308,7 +339,7 @@ createApp({
 			let out = rawSql.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 			out = out.replace(/(@\w+)/g, '<span class="sql-param">$1</span>');
 			out = out.replace(/'([^']*)'/g, "<span class='sql-str'>'$1'</span>");
-			out = this.replaceViewplaceholders(out);
+			out = replaceViewplaceholders(out, this.viewplaceholders, this.currentRole, this.currentUser);
 			out = out.replace(new RegExp(`\\b(${keywords.join('|')})\\b`, 'g'), '<span class="sql-kw">$1</span>');
 			return out;
 		}

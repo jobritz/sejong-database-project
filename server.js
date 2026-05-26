@@ -11,24 +11,24 @@ _config();
 import express, { json, static as _static } from 'express';
 import favicon from 'serve-favicon';
 import pkg from 'mssql';
-const { ConnectionPool, NVarChar } = pkg;
 import session from 'express-session';
 import { join } from 'path';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-const __dirname = dirname(fileURLToPath(import.meta.url));
 import loadSqlCommands from './load-sql.js';
 import { replaceViewplaceholders } from './frontend/viewplaceholders.js';
 
 const app = express();
+const { ConnectionPool, NVarChar } = pkg;
 
 const PORT = process.env.PORT;
 const SQL_COMMANDS = loadSqlCommands();
+const DIRNAME = dirname(fileURLToPath(import.meta.url));
 
 // App setup
 app.use(json());
-app.use(_static(join(__dirname, 'frontend')));
-app.use(favicon(join(__dirname, 'frontend', 'favicon.ico'))); 
+app.use(_static(join(DIRNAME, 'frontend')));
+app.use(favicon(join(DIRNAME, 'frontend', 'favicon.ico'))); 
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET,
@@ -73,7 +73,9 @@ app.post('/api/auth/login', async (req, res) => {
 		await pool.connect();
 
 		if (connections[req.session.id]) {
-			try { await connections[req.session.id].close(); } catch (_) {}
+			try { 
+				await connections[req.session.id].close(); 
+			} catch (_) {}
 		}
 		connections[req.session.id] = pool;
 		req.session.user = {
@@ -110,7 +112,9 @@ app.get('/api/auth/role', requireAuth, async (req, res) => {
 // Logout
 app.post('/api/auth/logout', async (req, res) => {
 	if (connections[req.session.id]) {
-		try { await connections[req.session.id].close(); } catch (_) {}
+		try { 
+			await connections[req.session.id].close(); 
+		} catch (_) {}
 		delete connections[req.session.id];
 	}
 	req.session.destroy();
@@ -137,10 +141,14 @@ function requireAuth(req, res, next) {
 // SQL Execute Endpoint
 app.post('/api/sql/execute', requireAuth, async (req, res) => {
 	const { queryKey, params = {}, role = '' } = req.body;
-	if (!queryKey) return res.status(400).json({ error: 'No queryKey provided.' });
+	if (!queryKey) {
+		return res.status(400).json({ error: 'No queryKey provided.' });
+	}
 	const key = queryKey.startsWith('@') ? queryKey.slice(1) : queryKey;
 	let query = SQL_COMMANDS.sqlMap[key];
-	if (!query) return res.status(400).json({ error: `Unknown query key: "${key}"` });
+	if (!query) {
+		return res.status(400).json({ error: `Unknown query key: "${key}"` });
+	}
 	query = replaceViewplaceholders(query, SQL_COMMANDS.viewplaceholders, role, req.session.user.username);
 	
 	const pool = connections[req.session.id];
@@ -148,7 +156,9 @@ app.post('/api/sql/execute', requireAuth, async (req, res) => {
 		const request = pool.request();
 
 		for (const [key, value] of Object.entries(params)) {
-			if (value === null || value === undefined) continue;
+			if (value === null || value === undefined) {
+				continue;
+			}
 			request.input(key, NVarChar, String(value));
 		}
 
