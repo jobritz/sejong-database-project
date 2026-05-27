@@ -238,15 +238,18 @@ createApp({
 				}
 			}
 			for (let [key, value] of Object.entries(params)) {
-				const p = this.currentQuery.params.find(p => p.name === key);
-				const cleaned = typeof value === 'string' ? parseFloat(value.replace(/[^0-9.]/g, '')) : value;
-				if (p) {
-					const converted = p.type === 'number' && !isNaN(cleaned) ? cleaned : value;
-					p.type === 'select' ? (this.selectValues[key] = String(converted)) : (this.paramValues[key] = converted);
-				} else {
-					this.selectLabelDefaults[key] = value;
-					this.paramValues[key] = !isNaN(cleaned) && String(value) !== String(cleaned) ? cleaned : value;
-				}
+			    const p = this.currentQuery.params.find(p => p.name === key);
+				console.log(p);
+			    if (p) {
+			        const cleaned = p.type === 'number' && typeof value === 'string'
+			            ? parseFloat(value.replace(/[^0-9.]/g, ''))
+			            : value;
+			        const converted = p.type === 'number' && !isNaN(cleaned) ? cleaned : value;
+			        p.type === 'select' ? (this.selectValues[key] = String(converted)) : (this.paramValues[key] = converted);
+			    } else {
+			        this.selectLabelDefaults[key] = value;
+			        this.paramValues[key] = value;
+			    }
 			}
 
 			for (const p of this.currentQuery.params) {
