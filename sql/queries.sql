@@ -168,7 +168,7 @@ LEFT OUTER JOIN view_room_reservation_[room_reservation] rr ON re.reservation_ID
 LEFT OUTER JOIN view_hotel_[hotel] ho ON rr.hotel_ID = ho.hotel_ID
 WHERE re.customer_ID = @customer_ID
 GROUP BY re.reservation_ID, re.checkin, re.checkout, re.guests, status, ho.hotelName, ho.hotel_ID
-ORDER BY re.checkin ASC;
+ORDER BY re.checkin DESC;
 
 -- @customer_management_get_customers_get_customer_reservations_reservation_overview_kpi_0
 SELECT ho.hotelName
